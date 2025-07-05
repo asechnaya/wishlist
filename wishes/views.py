@@ -24,10 +24,12 @@ def register(request):
 @login_required
 def wish_list(request):
     user_wishes = Wish.objects.filter(user=request.user)
-    tags = Tag.objects.all()
+    # Filter tags to show only those actually used by the current logged-in user on their wishes
+    tags = Tag.objects.filter(wish__user=request.user).distinct()  # Correct for current user's tags
     selected_tag = request.GET.get('tag')
 
     if selected_tag:
+        # Filter wishes by the selected tag (which is global, but the wishes belong to the user)
         user_wishes = user_wishes.filter(tags__name=selected_tag)
 
     return render(request, 'wishes/wish_list.html', {'wishes': user_wishes, 'tags': tags, 'selected_tag': selected_tag})
@@ -55,10 +57,13 @@ def wish_detail(request, pk):
     return render(request, 'wishes/wish_detail.html', {'wish': wish})
 
 
+# This view is for public wishlists
 def public_wish_list(request, username):
     owner = get_object_or_404(User, username=username)
     wishes = Wish.objects.filter(user=owner)
-    tags = Tag.objects.all()
+
+    tags = Tag.objects.filter(wish__user=owner).distinct()
+
     selected_tag = request.GET.get('tag')
 
     if selected_tag:
@@ -84,21 +89,20 @@ def edit_wish(request, pk):
         form = WishForm(request.POST, request.FILES, instance=wish)
         if form.is_valid():
             wish = form.save(commit=False)
-            wish.user = request.user # Убеждаемся, что пользователь остается прежним
+            wish.user = request.user  # Confirm the user is the same
             wish.save()
-            form._save_tags(wish)  # Сохраняем теги
-            messages.success(request, 'Wish updated successfully!') # Уведомление
-            return redirect('wish_detail', pk=wish.pk) # Перенаправляем на страницу деталей желания
+            form._save_tags(wish)  # Save tags
+            messages.success(request, 'Wish updated successfully!')  # Notification
+            return redirect('wish_detail', pk=wish.pk)  # Redirect to wish details page
     else:
         # Заполняем форму данными существующего желания
         form = WishForm(instance=wish)
     return render(request, 'wishes/edit_wish.html', {'form': form, 'wish': wish})
 
 
-# НОВАЯ ФУНКЦИЯ: Удаление желания
 @login_required
 def delete_wish(request, pk):
-    # Получаем желание, убеждаясь, что оно принадлежит текущему пользователю
+    # Get the wish to ensure it is current user's
     wish = get_object_or_404(Wish, pk=pk, user=request.user)
 
     if request.method == 'POST':
