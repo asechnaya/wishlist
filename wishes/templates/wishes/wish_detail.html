@@ -1,0 +1,35 @@
+<!-- wishes/templates/wishes/wish_detail.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ wish.title }}{% endblock %}
+
+{% block content %}
+    <h2>{{ wish.title }}</h2>
+    {% if wish.image %}
+        <img src="{{ wish.image.url }}" alt="{{ wish.title }}" style="max-width: 300px; height: auto;">
+    {% endif %}
+    <p><strong>Price:</strong> {% if wish.price %}{{ wish.price }}{% else %}N/A{% endif %}</p>
+    <p><strong>Shop Link:</strong> {% if wish.shop_link %}<a href="{{ wish.shop_link }}" target="_blank">{{ wish.shop_link }}</a>{% else %}N/A{% endif %}</p>
+    <p><strong>Description:</strong> {% if wish.description %}{{ wish.description }}{% else %}No description{% endif %}</p>
+    <p><strong>Tags:</strong>
+        {% if wish.tags.all %}
+            {% for tag in wish.tags.all %}
+                <span>{{ tag.name }}</span>{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        {% else %}
+            No tags
+        {% endif %}
+    </p>
+    <p><strong>Added On:</strong> {{ wish.created_at|date:"F d, Y P" }}</p>
+
+    <p>
+        <a href="{% url 'wish_list' %}" class="button">Back to Wishlist</a>
+
+        {# Кнопки редактирования и удаления, видимые только владельцу желания #}
+        {% if user.is_authenticated and user == wish.user %}
+            <a href="{% url 'edit_wish' wish.pk %}" class="button" style="background-color: #ffc107; margin-left: 10px;">Edit Wish</a>
+            {# Кнопка удаления, которая ведет на страницу подтверждения #}
+            <a href="{% url 'delete_wish' wish.pk %}" class="button" style="background-color: #dc3545; margin-left: 10px;">Delete Wish</a>
+        {% endif %}
+    </p>
+{% endblock %}

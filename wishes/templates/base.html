@@ -1,0 +1,110 @@
+<!-- mywishlist_project/templates/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Wishlist{% endblock %}</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        .container { max-width: 960px; margin: 0 auto; }
+        nav { background-color: #f4f4f4; padding: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        nav a { margin-right: 15px; text-decoration: none; color: #333; }
+        .wish-card { border: 1px solid #ccc; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; }
+        .wish-card img { max-width: 100px; max-height: 100px; margin-right: 15px; object-fit: contain; }
+        .wish-card-content { flex-grow: 1; }
+        .wish-card-content h3 { margin-top: 0; }
+        .tag-filter a { display: inline-block; padding: 5px 10px; background-color: #eee; border-radius: 5px; margin-right: 5px; margin-bottom: 5px; text-decoration: none; color: #333; }
+        .tag-filter a.active { background-color: #007bff; color: white; }
+        .button {
+            display: inline-block;
+            padding: 8px 15px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        .button:hover { background-color: #0056b3; }
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; margin-bottom: 5px; }
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group input[type="url"],
+        .form-group textarea,
+        .form-group input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box; /* Include padding and border in the element's total width and height */
+        }
+        .form-group button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .form-group button:hover { background-color: #218838; }
+        .messages { list-style: none; padding: 0; margin: 0; }
+        .messages li {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .messages .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .messages .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+        /* Style for the logout button to look like a link */
+        .logout-form { display: inline; }
+        .logout-form button {
+            background: none;
+            border: none;
+            color: #333; /* Match nav link color */
+            cursor: pointer;
+            font-size: 1em; /* Match nav link font size */
+            padding: 0;
+            margin-right: 15px; /* Match nav link margin */
+            text-decoration: underline; /* Make it look clickable */
+        }
+        .logout-form button:hover {
+            color: #007bff; /* Hover effect */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <div>
+                <a href="{% url 'wish_list' %}">My Wishlist</a>
+            </div>
+            <div>
+                {% if user.is_authenticated %}
+                    <span>Hello, {{ user.username }}!</span>
+                    {# Changed logout from a simple link to a form for security #}
+                    <form action="{% url 'logout' %}" method="post" class="logout-form">
+                        {% csrf_token %}
+                        <button type="submit">Logout</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}">Login</a>
+                    <a href="{% url 'register' %}">Register</a>
+                {% endif %}
+            </div>
+        </nav>
+
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

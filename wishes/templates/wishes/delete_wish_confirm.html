@@ -1,0 +1,15 @@
+<!-- wishes/templates/wishes/delete_wish_confirm.html -->
+{% extends 'base.html' %}
+
+{% block title %}Confirm Delete{% endblock %}
+
+{% block content %}
+    <h2>Confirm Deletion</h2>
+    <p>Are you sure you want to delete the wish: <strong>"{{ wish.title }}"</strong>?</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="button" style="background-color: #dc3545;">Yes, Delete</button>
+        <a href="{% url 'wish_detail' wish.pk %}" class="button" style="background-color: #6c757d; margin-left: 10px;">No, Cancel</a>
+    </form>
+{% endblock %}

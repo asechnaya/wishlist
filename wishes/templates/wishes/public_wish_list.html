@@ -1,0 +1,51 @@
+<!-- wishes/templates/wishes/public_wish_list.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ owner.username }}'s Wishlist{% endblock %}
+
+{% block content %}
+    <h2>{{ owner.username }}'s Wishlist</h2>
+
+    {# If the current user is the owner of the wishlist, show the add link #}
+    {% if is_owner %}
+        <p><a href="{% url 'add_wish' %}" class="button">Add New Wish</a></p>
+    {% endif %}
+
+    <h3>Filter by Tag:</h3>
+    <div class="tag-filter">
+        {# Link to all wishes for the current wishlist owner #}
+        <a href="{% url 'public_wish_list' owner.username %}" class="{% if not selected_tag %}active{% endif %}">All</a>
+        {% for tag in tags %}
+            {# Links to filter by tags for the current wishlist owner #}
+            <a href="{% url 'public_wish_list' owner.username %}?tag={{ tag.name }}" class="{% if selected_tag == tag.name %}active{% endif %}">{{ tag.name }}</a>
+        {% endfor %}
+    </div>
+
+    {% if wishes %}
+        {% for wish in wishes %}
+            <div class="wish-card">
+                {% if wish.image %}
+                    <img src="{{ wish.image.url }}" alt="{{ wish.title }}">
+                {% endif %}
+                <div class="wish-card-content">
+                    {# Link to wish details, if this is the current user's wishlist #}
+                    {% if is_owner %}
+                        <h3><a href="{% url 'wish_detail' wish.pk %}">{{ wish.title }}</a></h3>
+                    {% else %}
+                        <h3>{{ wish.title }}</h3> {# In public wishlist, don't link to details to avoid complexity #}
+                    {% endif %}
+                    <p>Price: {% if wish.price %}{{ wish.price }}{% else %}N/A{% endif %}</p>
+                    {% if wish.tags.all %}
+                        <p>Tags:
+                            {% for tag in wish.tags.all %}
+                                <span>{{ tag.name }}</span>{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>{{ owner.username }} does not have any wishes yet.</p>
+    {% endif %}
+{% endblock %}

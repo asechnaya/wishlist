@@ -1,0 +1,46 @@
+<!-- wishes/templates/wishes/wish_list.html -->
+{% extends 'base.html' %}
+
+{% block title %}My Wishlist{% endblock %}
+
+{% block content %}
+    <h2>My Wishes</h2>
+    <p>
+        <a href="{% url 'add_wish' %}" class="button">Add New Wish</a>
+        {# НОВАЯ ССЫЛКА на публичный вишлист текущего пользователя #}
+        {% if user.is_authenticated %}
+            <a href="{% url 'public_wish_list' user.username %}" class="button" style="margin-left: 10px;">View My Public Wishlist</a>
+        {% endif %}
+    </p>
+
+    <h3>Filter by Tag:</h3>
+    <div class="tag-filter">
+        <a href="{% url 'wish_list' %}" class="{% if not selected_tag %}active{% endif %}">All</a>
+        {% for tag in tags %}
+            <a href="{% url 'wish_list' %}?tag={{ tag.name }}" class="{% if selected_tag == tag.name %}active{% endif %}">{{ tag.name }}</a>
+        {% endfor %}
+    </div>
+
+    {% if wishes %}
+        {% for wish in wishes %}
+            <div class="wish-card">
+                {% if wish.image %}
+                    <img src="{{ wish.image.url }}" alt="{{ wish.title }}">
+                {% endif %}
+                <div class="wish-card-content">
+                    <h3><a href="{% url 'wish_detail' wish.pk %}">{{ wish.title }}</a></h3>
+                    <p>Price: {% if wish.price %}{{ wish.price }}{% else %}N/A{% endif %}</p>
+                    {% if wish.tags.all %}
+                        <p>Tags:
+                            {% for tag in wish.tags.all %}
+                                <span>{{ tag.name }}</span>{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>You don't have any wishes yet. <a href="{% url 'add_wish' %}">Add one!</a></p>
+    {% endif %}
+{% endblock %}
