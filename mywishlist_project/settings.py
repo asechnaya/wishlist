@@ -11,24 +11,34 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+import logging.handlers # Import for RotatingFileHandler if not already imported by logging
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+# ==============================================================================
+# Core Security Settings
+# ==============================================================================
 
 # SECURITY WARNING: keep the secret key used in production secret!
+# For production, it's highly recommended to use an environment variable:
+# SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'a_fallback_key_for_development_only')
 SECRET_KEY = 'django-insecure-cgewr*-z5qo=@hhandfnej6^^!m6bnlmu$tf3_bi5esbzs24x0'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# List of hosts/domain names that this Django site can serve.
+# In production, replace [] with your domain(s) or server IP.
+# Example: ALLOWED_HOSTS = ['your_domain.com', 'www.your_domain.com', 'your_server_ip_address']
 ALLOWED_HOSTS = []
 
 
-# Application definition
+# ==============================================================================
+# Application Definition
+# ==============================================================================
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -37,7 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'wishes',  # Your app
+    'wishes',  # Your custom 'wishes' app
 ]
 
 MIDDLEWARE = [
@@ -55,10 +65,12 @@ ROOT_URLCONF = 'mywishlist_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
+        # DIRS is for project-wide templates (e.g., base.html if not in an app's templates)
+        'DIRS': [BASE_DIR / 'mywishlist_project' / 'templates'], # Added project-level templates directory
+        'APP_DIRS': True, # Allows Django to find templates within app's 'templates' directories
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug', # Good for development
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -70,8 +82,10 @@ TEMPLATES = [
 WSGI_APPLICATION = 'mywishlist_project.wsgi.application'
 
 
-# Database
+# ==============================================================================
+# Database Configuration
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+# ==============================================================================
 
 DATABASES = {
     'default': {
@@ -81,8 +95,10 @@ DATABASES = {
 }
 
 
-# Password validation
+# ==============================================================================
+# Password Validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
+# ==============================================================================
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -100,35 +116,111 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+# ==============================================================================
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
+# ==============================================================================
 
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
 
-USE_I18N = True
+USE_I18N = True # Enable Django's internationalization system
 
-USE_TZ = True
+USE_TZ = True # Enable timezone support
 
 
-# Static files (CSS, JavaScript, Images)
+# ==============================================================================
+# Static and Media Files
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
+# ==============================================================================
 
 STATIC_URL = 'static/'
+# STATIC_ROOT is used by collectstatic for deployment.
+# In development, Django serves static files from app directories.
+# STATIC_ROOT = BASE_DIR / 'staticfiles' # Uncomment for production deployment
 
-# Default primary key field type
+MEDIA_URL = '/media/' # URL path for user-uploaded media files
+MEDIA_ROOT = BASE_DIR / 'media' # Files will be stored here on the server
+
+
+# ==============================================================================
+# Authentication URLs
+# ==============================================================================
+
+# URL to redirect to after a user successfully logs in
+LOGIN_REDIRECT_URL = 'wish_list'
+
+# URL to redirect to after a user logs out
+LOGOUT_REDIRECT_URL = 'login'
+
+
+# ==============================================================================
+# Default Primary Key Field Type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
+# ==============================================================================
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Add this for media file handling (for images)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
 
+# ==============================================================================
+# Logging Configuration
+# https://docs.djangoproject.com/en/5.2/topics/logging/
+# ==============================================================================
 
-# Redirect to the wishlist page after login
-LOGIN_REDIRECT_URL = 'wish_list'
+# Define the base directory for logs within your project root
+LOG_DIR = BASE_DIR / 'logs'
+# Ensure the logs directory exists; create it if it doesn't
+os.makedirs(LOG_DIR, exist_ok=True)
 
-# Redirect to the login page after logout
-LOGOUT_REDIRECT_URL = 'login'
+LOGGING = {
+    'version': 1,  # The version of the logging configuration schema
+    'disable_existing_loggers': False,  # Keep existing loggers (like Django's default)
+
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',  # Capture all messages from DEBUG level and above
+            'class': 'logging.StreamHandler',  # Output to console (stderr)
+            'formatter': 'simple', # Use the 'simple' format for console output
+        },
+        'file': {
+            'level': 'INFO', # Capture messages from INFO level and above
+            'class': 'logging.handlers.RotatingFileHandler', # Write to a file, rotating logs
+            'filename': os.path.join(LOG_DIR, 'django_debug.log'), # Path to your log file
+            'maxBytes': 1024 * 1024 * 5, # 5 MB per log file
+            'backupCount': 5, # Keep up to 5 backup log files
+            'formatter': 'verbose',  # Use the 'verbose' format for file output
+        },
+    },
+
+    'loggers': {
+        'django': {
+            # Logger for Django's internal messages
+            'handlers': ['console', 'file'],  # Send Django's internal logs to both console and file
+            'level': 'INFO', # Default level for Django's own messages
+            'propagate': False, # Don't pass to root logger to avoid duplicate console output
+        },
+        'wishes': {
+            # A custom logger for 'wishes' app
+            'handlers': ['console', 'file'],  # Send your app's logs to both console and file
+            'level': 'DEBUG', # Capture all messages from your app (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+            'propagate': False, # Prevent messages from being passed to the root logger
+        },
+    },
+    'root': {
+        # The root logger (fallback for anything not caught by specific loggers)
+        'handlers': ['console'],  # Default to console output for root logger
+        'level': 'WARNING',  # Only show WARNING and above by default if not specified elsewhere
+    }
+}

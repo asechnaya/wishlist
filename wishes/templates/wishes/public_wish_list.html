@@ -28,12 +28,8 @@
                     <img src="{{ wish.image.url }}" alt="{{ wish.title }}">
                 {% endif %}
                 <div class="wish-card-content">
-                    {# Link to wish details, if this is the current user's wishlist #}
-                    {% if is_owner %}
-                        <h3><a href="{% url 'wish_detail' wish.pk %}">{{ wish.title }}</a></h3>
-                    {% else %}
-                        <h3>{{ wish.title }}</h3> {# In public wishlist, don't link to details to avoid complexity #}
-                    {% endif %}
+                    {# UPDATED LINK: Now links to the public_wish_detail view #}
+                    <h3><a href="{% url 'public_wish_detail' owner.username wish.pk %}">{{ wish.title }}</a></h3>
                     <p>Price: {% if wish.price %}{{ wish.price }}{% else %}N/A{% endif %}</p>
                     {% if wish.tags.all %}
                         <p>Tags:

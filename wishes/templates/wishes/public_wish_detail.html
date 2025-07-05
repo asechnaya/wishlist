@@ -1,0 +1,49 @@
+<!-- wishes/templates/wishes/public_wish_detail.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ wish.title }} - {{ owner.username }}'s Wishlist{% endblock %}
+
+{% block content %}
+    <h2>{{ wish.title }} (from {{ owner.username }}'s Wishlist)</h2>
+    {% if wish.image %}
+        <img src="{{ wish.image.url }}" alt="{{ wish.title }}" style="max-width: 300px; height: auto;">
+    {% endif %}
+    <p><strong>Price:</strong> {% if wish.price %}{{ wish.price }}{% else %}N/A{% endif %}</p>
+    <p><strong>Shop Link:</strong> {% if wish.shop_link %}<a href="{{ wish.shop_link }}" target="_blank">{{ wish.shop_link }}</a>{% else %}N/A{% endif %}</p>
+    <p><strong>Description:</strong> {% if wish.description %}{{ wish.description }}{% else %}No description{% endif %}</p>
+    <p><strong>Tags:</strong>
+        {% if wish.tags.all %}
+            {% for tag in wish.tags.all %}
+                {# Tags on public detail page should link back to the owner's public wishlist filtered by tag #}
+                <a href="{% url 'public_wish_list' owner.username %}?tag={{ tag.name }}" class="tag-link">
+                    <span>{{ tag.name }}</span>
+                </a>{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        {% else %}
+            No tags
+        {% endif %}
+    </p>
+    <p><strong>Added On:</strong> {{ wish.created_at|date:"F d, Y P" }}</p>
+
+    <p>
+        {# Link back to the owner's public wishlist #}
+        <a href="{% url 'public_wish_list' owner.username %}" class="button">Back to {{ owner.username }}'s Wishlist</a>
+    </p>
+
+    <style>
+        /* Basic styling for the clickable tags to make them look like links */
+        .tag-link {
+            text-decoration: none;
+            color: #007bff; /* Standard link blue */
+            background-color: #e9ecef; /* Light background */
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-right: 5px;
+            display: inline-block; /* Allows padding and margin */
+        }
+        .tag-link:hover {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+{% endblock %}

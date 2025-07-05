@@ -1,36 +1,31 @@
-from django.urls import path
-from . import views  # This imports your views.py from the current directory
+# wishes/urls.py
 
+from django.urls import path
+from . import views
 
 urlpatterns = [
-    # Path for the list of wishes (homepage of your wishlist app)
-    # This matches the root path of the 'wishes' app, e.g., http://127.0.0.1:8000/
+    # User's own private wish list (homepage for logged-in users)
     path('', views.wish_list, name='wish_list'),
 
-    # Path for adding a new wish
-    # This will be accessible at, e.g., http://127.0.0.1:8000/add/
+    # Page to add a new wish
     path('add/', views.add_wish, name='add_wish'),
 
-    # Path for viewing a specific wish's details
-    # The <int:pk> part captures an integer (primary key) from the URL.
-    # For example, http://127.0.0.1:8000/1/ would show details for wish with ID 1.
+    # Page to view details of a user's own wish (requires login)
     path('<int:pk>/', views.wish_detail, name='wish_detail'),
 
-    # Path for user registration
-    # This will be accessible at, e.g., http://127.0.0.1:8000/register/
+    # User registration page
     path('register/', views.register, name='register'),
 
-    # NEW URL PATTERN for a user's public wishlist
-    # It will look like /wisher/username/
-
+    # Public wish list page for a specific user (e.g., /wisher/username/)
     path('wisher/<str:username>/', views.public_wish_list, name='public_wish_list'),
 
-    # NEW URL TEMPLATES for editing and deleting
+    # Public wish detail page for a specific wish belonging to a specific user
+    # (e.g., /wisher/username/123/)
+    path('wisher/<str:username>/<int:pk>/', views.public_wish_detail, name='public_wish_detail'),
 
+    # Page to edit a user's own wish (requires login)
     path('<int:pk>/edit/', views.edit_wish, name='edit_wish'),
+
+    # Page to confirm deletion of a user's own wish (requires login)
     path('<int:pk>/delete/', views.delete_wish, name='delete_wish'),
-
-
 ]
-
-
