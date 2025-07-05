@@ -14,7 +14,9 @@
     <p><strong>Tags:</strong>
         {% if wish.tags.all %}
             {% for tag in wish.tags.all %}
-                <span>{{ tag.name }}</span>{% if not forloop.last %}, {% endif %}
+                <a href="{% url 'wish_list' %}?tag={{ tag.name }}" class="tag-link">
+                    <span>{{ tag.name }}</span>
+                </a>{% if not forloop.last %}, {% endif %}
             {% endfor %}
         {% else %}
             No tags
@@ -25,11 +27,28 @@
     <p>
         <a href="{% url 'wish_list' %}" class="button">Back to Wishlist</a>
 
-        {# Кнопки редактирования и удаления, видимые только владельцу желания #}
+        {# Edit and Delete buttons, visible only to the wish owner #}
         {% if user.is_authenticated and user == wish.user %}
             <a href="{% url 'edit_wish' wish.pk %}" class="button" style="background-color: #ffc107; margin-left: 10px;">Edit Wish</a>
-            {# Кнопка удаления, которая ведет на страницу подтверждения #}
+            {# Delete button that leads to the confirmation page #}
             <a href="{% url 'delete_wish' wish.pk %}" class="button" style="background-color: #dc3545; margin-left: 10px;">Delete Wish</a>
         {% endif %}
     </p>
+
+    <style>
+        /* Basic styling for the clickable tags to make them look like links */
+        .tag-link {
+            text-decoration: none;
+            color: #007bff; /* Standard link blue */
+            background-color: #e9ecef; /* Light background */
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-right: 5px;
+            display: inline-block; /* Allows padding and margin */
+        }
+        .tag-link:hover {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
 {% endblock %}
