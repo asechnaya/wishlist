@@ -1,0 +1,4 @@
+Django==5.2.4
+Pillow==10.3.0 # For image handling in Django
+gunicorn==22.0.0 # WSGI HTTP Server for production deployment
+psycopg2-binary==2.9.9 # PostgreSQL adapter (if you use PostgreSQL in production)
