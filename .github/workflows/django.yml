@@ -1,30 +1,62 @@
+# .github/workflows/django.yml
+
 name: Django CI
 
+# Controls when the workflow will run
 on:
+  # Trigger the workflow on push or pull request events to the 'main' branch
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build:
-
+    # The type of runner that the job will run on
     runs-on: ubuntu-latest
+
+    # Strategy to run the job with different Python versions (currently just 3.9)
     strategy:
+      # Max-parallel limits the number of jobs running simultaneously if you had multiple Python versions
       max-parallel: 4
       matrix:
-        python-version: [3.8, 3.9]
+        python-version: [3.9] # Define the Python version(s) to test against
 
+    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    - uses: actions/checkout@v4
+    # Step 1: Checkout the repository code
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    # Step 2: Set up Python environment
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
+
+    # Step 3: Cache Python dependencies to speed up subsequent runs
+    - name: Cache Python Dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip # Path to the pip cache directory
+        key: ${{ runner.os }}-python-${{ matrix.python-version }}-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-python-${{ matrix.python-version }}-
+
+    # Step 4: Install project dependencies
     - name: Install Dependencies
       run: |
+        # Upgrade pip to ensure it's the latest version
         python -m pip install --upgrade pip
+        # Install all packages listed in requirements.txt
         pip install -r requirements.txt
-    - name: Run Tests
+
+    # Step 5: Run Django tests
+    # The 'test' command automatically creates a test database, applies migrations, and runs tests.
+    - name: Run Django Tests
       run: |
+        # Set the Django settings module environment variable for the test command
+        export DJANGO_SETTINGS_MODULE=mywishlist_project.settings
+        # Run Django's test suite
         python manage.py test
