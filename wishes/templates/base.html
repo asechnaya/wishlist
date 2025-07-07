@@ -73,18 +73,35 @@
         .logout-form button:hover {
             color: #007bff; /* Hover effect */
         }
+
+        /* Style for the clickable username */
+        .username-link {
+            text-decoration: none;
+            color: #333; /* Match nav link color */
+            font-weight: bold; /* Make it stand out a bit */
+            margin-right: 5px; /* Small margin between username and logout */
+        }
+        .username-link:hover {
+            color: #007bff; /* Hover effect */
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <nav>
             <div>
-                <a href="{% url 'wish_list' %}">My Wishlist</a>
+                {# UPDATED LINK: Link to the new main feed homepage #}
+                <a href="{% url 'main_feed' %}">My Wishlist</a>
+                {# NEW: Link to user's private wishlist if logged in #}
+                {% if user.is_authenticated %}
+                    <a href="{% url 'wish_list' %}" style="margin-left: 15px;">My Private List</a>
+                {% endif %}
             </div>
             <div>
                 {% if user.is_authenticated %}
-                    <span>Hello, {{ user.username }}!</span>
-                    {# Changed logout from a simple link to a form for security #}
+                    <a href="{% url 'public_wish_list' user.username %}" class="username-link">
+                        Hello, {{ user.username }}!
+                    </a>
                     <form action="{% url 'logout' %}" method="post" class="logout-form">
                         {% csrf_token %}
                         <button type="submit">Logout</button>

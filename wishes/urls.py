@@ -4,13 +4,19 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # User's own private wish list (homepage for logged-in users)
-    path('', views.wish_list, name='wish_list'),
+    # NEW: Main public feed page for all public wishes
+    # This will be the site's homepage: http://127.0.0.1:8000/
+    path('', views.main_feed, name='main_feed'),
+
+    # User's own private wish list (previously at '/')
+    # Now accessible at: http://127.0.0.1:8000/my-wishes/
+    path('my-wishes/', views.wish_list, name='wish_list'),
 
     # Page to add a new wish
     path('add/', views.add_wish, name='add_wish'),
 
     # Page to view details of a user's own wish (requires login)
+    # This URL remains the same, but links to it might change from wish_list
     path('<int:pk>/', views.wish_detail, name='wish_detail'),
 
     # User registration page

@@ -14,6 +14,7 @@
     <p><strong>Tags:</strong>
         {% if wish.tags.all %}
             {% for tag in wish.tags.all %}
+                {# UPDATED LINK: Clickable tags lead to filtering on the current user's wish_list page #}
                 <a href="{% url 'wish_list' %}?tag={{ tag.name }}" class="tag-link">
                     <span>{{ tag.name }}</span>
                 </a>{% if not forloop.last %}, {% endif %}
@@ -25,30 +26,13 @@
     <p><strong>Added On:</strong> {{ wish.created_at|date:"F d, Y P" }}</p>
 
     <p>
-        <a href="{% url 'wish_list' %}" class="button">Back to Wishlist</a>
+        {# UPDATED LINK: Back to user's own wish_list #}
+        <a href="{% url 'wish_list' %}" class="button">Back to My Wishlist</a>
 
         {# Edit and Delete buttons, visible only to the wish owner #}
         {% if user.is_authenticated and user == wish.user %}
             <a href="{% url 'edit_wish' wish.pk %}" class="button" style="background-color: #ffc107; margin-left: 10px;">Edit Wish</a>
-            {# Delete button that leads to the confirmation page #}
             <a href="{% url 'delete_wish' wish.pk %}" class="button" style="background-color: #dc3545; margin-left: 10px;">Delete Wish</a>
         {% endif %}
     </p>
-
-    <style>
-        /* Basic styling for the clickable tags to make them look like links */
-        .tag-link {
-            text-decoration: none;
-            color: #007bff; /* Standard link blue */
-            background-color: #e9ecef; /* Light background */
-            padding: 3px 8px;
-            border-radius: 4px;
-            margin-right: 5px;
-            display: inline-block; /* Allows padding and margin */
-        }
-        .tag-link:hover {
-            background-color: #007bff;
-            color: white;
-        }
-    </style>
 {% endblock %}

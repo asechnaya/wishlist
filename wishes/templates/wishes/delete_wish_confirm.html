@@ -10,6 +10,7 @@
     <form method="post">
         {% csrf_token %}
         <button type="submit" class="button" style="background-color: #dc3545;">Yes, Delete</button>
-        <a href="{% url 'wish_detail' wish.pk %}" class="button" style="background-color: #6c757d; margin-left: 10px;">No, Cancel</a>
+        {# UPDATED LINK: Cancel leads back to user's own wish_list #}
+        <a href="{% url 'wish_list' %}" class="button" style="background-color: #6c757d; margin-left: 10px;">No, Cancel</a>
     </form>
 {% endblock %}

@@ -1,0 +1,121 @@
+<!-- wishes/templates/wishes/main_feed.html -->
+{% extends 'base.html' %}
+
+{% block title %}Public Wish Feed{% endblock %}
+
+{% block content %}
+    <h2>Public Wish Feed</h2>
+    <p>Explore wishes from all users!</p>
+
+    <h3>Filter by Tag:</h3>
+    <div class="tag-filter">
+        {# Link to all wishes in the main feed #}
+        <a href="{% url 'main_feed' %}" class="{% if not selected_tag %}active{% endif %}">All</a>
+        {% for tag in tags %}
+            {# Links to filter by tags for the main feed #}
+            <a href="{% url 'main_feed' %}?tag={{ tag.name }}" class="{% if selected_tag == tag.name %}active{% endif %}">{{ tag.name }}</a>
+        {% endfor %}
+    </div>
+
+    <div class="wish-feed-grid">
+        {% if wishes %}
+            {% for wish in wishes %}
+                <div class="wish-card">
+                    {% if wish.image %}
+                        <img src="{{ wish.image.url }}" alt="{{ wish.title }}">
+                    {% endif %}
+                    <div class="wish-card-content">
+                        {# Link to the public wish detail page #}
+                        <h3><a href="{% url 'public_wish_detail' wish.user.username wish.pk %}">{{ wish.title }}</a></h3>
+                        <p>By: <a href="{% url 'public_wish_list' wish.user.username %}">{{ wish.user.username }}</a></p>
+                        <p>Price: {% if wish.price %}{{ wish.price }}{% else %}N/A{% endif %}</p>
+                        {% if wish.tags.all %}
+                            <p>Tags:
+                                {% for tag in wish.tags.all %}
+                                    {# Tags on main feed should link back to the main feed filtered by tag #}
+                                    <a href="{% url 'main_feed' %}?tag={{ tag.name }}" class="tag-link">
+                                        <span>{{ tag.name }}</span>
+                                    </a>{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No public wishes available yet.</p>
+        {% endif %}
+    </div>
+
+    <style>
+        .wish-feed-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Responsive grid */
+            gap: 20px; /* Space between cards */
+            margin-top: 20px;
+        }
+        .wish-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden; /* Ensures image corners are rounded */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease-in-out;
+            display: flex;
+            flex-direction: column; /* Stack image and content */
+            background-color: #fff;
+        }
+        .wish-card:hover {
+            transform: translateY(-5px); /* Lift effect on hover */
+        }
+        .wish-card img {
+            width: 100%;
+            height: 200px; /* Fixed height for images */
+            object-fit: cover; /* Cover the area, cropping if necessary */
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .wish-card-content {
+            padding: 15px;
+            flex-grow: 1; /* Allows content to expand */
+            display: flex;
+            flex-direction: column;
+        }
+        .wish-card-content h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        .wish-card-content h3 a {
+            text-decoration: none;
+            color: #007bff;
+        }
+        .wish-card-content h3 a:hover {
+            text-decoration: underline;
+        }
+        .wish-card-content p {
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            color: #555;
+        }
+        .wish-card-content p a { /* Style for "By: username" link */
+            color: #28a745;
+            text-decoration: none;
+        }
+        .wish-card-content p a:hover {
+            text-decoration: underline;
+        }
+        .tag-link {
+            text-decoration: none;
+            color: #007bff;
+            background-color: #e9ecef;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-right: 5px;
+            display: inline-block;
+            margin-top: 5px; /* Space from other content */
+        }
+        .tag-link:hover {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+{% endblock %}

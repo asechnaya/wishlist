@@ -10,8 +10,37 @@ from django.contrib import messages
 from .models import Wish, Tag
 from .forms import WishForm
 
-# Get an instance of the logger for the 'wishes' app
 logger = logging.getLogger('wishes')
+
+
+# NEW FUNCTION: Main public feed page
+def main_feed(request):
+    logger.debug("Accessing main public feed.")
+
+    # Start with all public and non-completed wishes
+    all_public_wishes_query = Wish.objects.filter(private=False, completed=False)
+
+    # Get all tags that are associated with public, non-completed wishes
+    tags = Tag.objects.filter(wish__private=False, wish__completed=False).distinct()
+    selected_tag = request.GET.get('tag')
+
+    # Apply filtering BEFORE ordering and slicing
+    if selected_tag:
+        all_public_wishes_query = all_public_wishes_query.filter(tags__name=selected_tag)
+        logger.debug(f"Main feed filtered by tag: '{selected_tag}'.")
+
+    # Now apply ordering and slicing
+    all_public_wishes = all_public_wishes_query.order_by('-created_at')[:20]  # Limit to 20 for a feed
+
+    context = {
+        'wishes': all_public_wishes,
+        'tags': tags,
+        'selected_tag': selected_tag,
+        'is_main_feed': True  # A flag to differentiate this template from others
+    }
+    logger.info(f"Main feed displayed. Total public wishes: {all_public_wishes.count()}")
+    return render(request, 'wishes/main_feed.html', context)
+
 
 def register(request):
     logger.debug(f"Attempting to register user. Method: {request.method}")
@@ -22,26 +51,37 @@ def register(request):
             login(request, user)
             messages.success(request, 'Registration successful! You are now logged in.')
             logger.info(f"User '{user.username}' registered and logged in successfully.")
-            return redirect('wish_list')
+            return redirect('wish_list')  # Redirect to user's private wish list
         else:
             logger.warning(f"Registration failed for user. Form errors: {form.errors.as_json()}")
     else:
         logger.debug("Displaying registration form.")
     return render(request, 'registration/register.html', {'form': form})
 
+
 @login_required
 def wish_list(request):
     logger.debug(f"User '{request.user.username}' accessing wish list. Filter tag: {request.GET.get('tag')}")
-    user_wishes = Wish.objects.filter(user=request.user)
+    all_user_wishes = Wish.objects.filter(user=request.user)
     tags = Tag.objects.filter(wish__user=request.user).distinct()
     selected_tag = request.GET.get('tag')
 
     if selected_tag:
-        user_wishes = user_wishes.filter(tags__name=selected_tag)
+        all_user_wishes = all_user_wishes.filter(tags__name=selected_tag)
         logger.debug(f"Wish list filtered by tag: '{selected_tag}' for user '{request.user.username}'.")
 
-    logger.info(f"Wish list displayed for user '{request.user.username}'. Total wishes: {user_wishes.count()}")
-    return render(request, 'wishes/wish_list.html', {'wishes': user_wishes, 'tags': tags, 'selected_tag': selected_tag})
+    active_wishes = all_user_wishes.filter(completed=False)
+    completed_wishes = all_user_wishes.filter(completed=True)
+
+    logger.info(
+        f"Wish list displayed for user '{request.user.username}'. Active wishes: {active_wishes.count()}, Completed wishes: {completed_wishes.count()}")
+    return render(request, 'wishes/wish_list.html', {
+        'active_wishes': active_wishes,
+        'completed_wishes': completed_wishes,
+        'tags': tags,
+        'selected_tag': selected_tag
+    })
+
 
 @login_required
 def add_wish(request):
@@ -57,14 +97,15 @@ def add_wish(request):
             logger.info(f"Wish '{wish.title}' added by user '{request.user.username}'.")
             return redirect('wish_list')
         else:
-            logger.warning(f"Failed to add wish for user '{request.user.username}'. Form errors: {form.errors.as_json()}")
+            logger.warning(
+                f"Failed to add wish for user '{request.user.username}'. Form errors: {form.errors.as_json()}")
     else:
         logger.debug(f"Displaying add wish form for user '{request.user.username}'.")
     return render(request, 'wishes/add_wish.html', {'form': form})
 
+
 @login_required
 def wish_detail(request, pk):
-    # This view is for the owner to view their own wish details, potentially for editing/deleting.
     logger.debug(f"User '{request.user.username}' accessing wish detail for PK: {pk}")
     try:
         wish = get_object_or_404(Wish, pk=pk, user=request.user)
@@ -75,12 +116,13 @@ def wish_detail(request, pk):
         return redirect('wish_list')
     return render(request, 'wishes/wish_detail.html', {'wish': wish})
 
+
 def public_wish_list(request, username):
     logger.debug(f"Accessing public wish list for username: '{username}'. Filter tag: {request.GET.get('tag')}")
     try:
         owner = get_object_or_404(User, username=username)
-        wishes = Wish.objects.filter(user=owner)
-        tags = Tag.objects.filter(wish__user=owner).distinct()
+        wishes = Wish.objects.filter(user=owner, private=False, completed=False)
+        tags = Tag.objects.filter(wish__user=owner, wish__private=False, wish__completed=False).distinct()
         selected_tag = request.GET.get('tag')
 
         if selected_tag:
@@ -98,23 +140,20 @@ def public_wish_list(request, username):
     except Exception as e:
         logger.error(f"Error accessing public wish list for username '{username}': {e}", exc_info=True)
         messages.error(request, f"Could not find a wishlist for user '{username}'.")
-        return redirect('wish_list')
+        return redirect('main_feed')  # Redirect to main feed if public list not found
     return render(request, 'wishes/public_wish_list.html', context)
 
-# NEW FUNCTION: Public Wish Detail View
+
 def public_wish_detail(request, username, pk):
     logger.debug(f"Accessing public wish detail for username: '{username}', wish PK: {pk}")
     try:
-        # First, get the owner of the wishlist
         owner = get_object_or_404(User, username=username)
-        # Then, get the specific wish, ensuring it belongs to that owner
-        wish = get_object_or_404(Wish, pk=pk, user=owner)
+        wish = get_object_or_404(Wish, pk=pk, user=owner, private=False, completed=False)
         logger.info(f"Public wish '{wish.title}' (ID: {pk}) displayed for owner '{username}'.")
     except Exception as e:
         logger.error(f"Error accessing public wish ID {pk} for user '{username}': {e}", exc_info=True)
-        messages.error(request, "The wish you requested could not be found.")
-        # Redirect to the owner's public wishlist if the specific wish isn't found
-        return redirect('public_wish_list', username=username)
+        messages.error(request, "The wish you requested could not be found or is private/completed.")
+        return redirect('main_feed')  # Redirect to main feed if public wish not found
     return render(request, 'wishes/public_wish_detail.html', {'wish': wish, 'owner': owner})
 
 
@@ -139,10 +178,12 @@ def edit_wish(request, pk):
             logger.info(f"Wish '{wish.title}' (ID: {pk}) updated by user '{request.user.username}'.")
             return redirect('wish_detail', pk=wish.pk)
         else:
-            logger.warning(f"Failed to update wish ID {pk} for user '{request.user.username}'. Form errors: {form.errors.as_json()}")
+            logger.warning(
+                f"Failed to update wish ID {pk} for user '{request.user.username}'. Form errors: {form.errors.as_json()}")
     else:
         form = WishForm(instance=wish)
     return render(request, 'wishes/edit_wish.html', {'form': form, 'wish': wish})
+
 
 @login_required
 def delete_wish(request, pk):
@@ -150,7 +191,8 @@ def delete_wish(request, pk):
     try:
         wish = get_object_or_404(Wish, pk=pk, user=request.user)
     except Exception as e:
-        logger.error(f"Error retrieving wish ID {pk} for deletion by user '{request.user.username}': {e}", exc_info=True)
+        logger.error(f"Error retrieving wish ID {pk} for deletion by user '{request.user.username}': {e}",
+                     exc_info=True)
         messages.error(request, "The wish you tried to delete could not be found or you don't have permission.")
         return redirect('wish_list')
 
