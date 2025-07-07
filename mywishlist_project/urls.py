@@ -1,7 +1,7 @@
 """
-URL configuration for mywishlist_project project.
+URL configuration for a mywishlist_project project.
 
-The `urlpatterns` list routes URLs to views. For more information please see:
+The `urlpatterns` list routes URLs to views. For more information, please see:
     https://docs.djangoproject.com/en/5.2/topics/http/urls/
 Examples:
 Function views
@@ -19,11 +19,14 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
-
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('wishes.urls')),  # Include your wishes' app URLs
+    path('', include('wishes.urls')),  # Your existing web app URLs
     path('accounts/', include('django.contrib.auth.urls')),  # For login/logout
+
+    path('api/', include('wishes.api_urls')), # NEW: Include your API URLs
+    path('accounts/', include('django.contrib.auth.urls')),
+
 ]
 
 
