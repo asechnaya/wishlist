@@ -21,12 +21,15 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {% if wishes %}
             {% for wish in wishes %}
-                <div class="wish-card transform hover:scale-105 transition-transform duration-200 ease-in-out">
+                {# Changed wish-card to use flex for horizontal layout of avatar and content #}
+                <div class="wish-card transform hover:scale-105 transition-transform duration-200 ease-in-out flex items-start p-4">
                     {% if wish.image %}
-                        <img src="{{ wish.image.url }}" alt="{{ wish.title }}" class="w-full h-48 object-cover rounded-t-lg">
+                        {# Image styled as a small square avatar #}
+                        <img src="{{ wish.image.url }}" alt="{{ wish.title }}" class="w-16 h-16 object-cover rounded-full mr-4 flex-shrink-0">
                     {% endif %}
-                    <div class="wish-card-content">
-                        <h3 class="text-lg font-semibold mb-2">
+                    {# Removed padding from wish-card-content as it's now on the parent wish-card #}
+                    <div class="wish-card-content p-0 flex-grow">
+                        <h3 class="text-lg font-semibold mb-1">
                             <a href="{% url 'public_wish_detail' wish.user.username wish.pk %}" class="text-blue-600 hover:underline">
                                 {{ wish.title }}
                             </a>
