@@ -4,7 +4,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # NEW: Main public feed page for all public wishes
+    # Main public feed page for all public wishes
     # This will be the site's homepage: http://127.0.0.1:8000/
     path('', views.main_feed, name='main_feed'),
 

@@ -13,7 +13,7 @@ from .forms import WishForm
 logger = logging.getLogger('wishes')
 
 
-# NEW FUNCTION: Main public feed page
+# Main public feed page
 def main_feed(request):
     logger.debug("Accessing main public feed.")
 
@@ -55,6 +55,7 @@ def register(request):
         else:
             logger.warning(f"Registration failed for user. Form errors: {form.errors.as_json()}")
     else:
+        form = UserCreationForm()  # Initialize form for GET requests
         logger.debug("Displaying registration form.")
     return render(request, 'registration/register.html', {'form': form})
 
@@ -100,6 +101,7 @@ def add_wish(request):
             logger.warning(
                 f"Failed to add wish for user '{request.user.username}'. Form errors: {form.errors.as_json()}")
     else:
+        form = WishForm()  # Initialize form for GET requests
         logger.debug(f"Displaying add wish form for user '{request.user.username}'.")
     return render(request, 'wishes/add_wish.html', {'form': form})
 
@@ -181,7 +183,7 @@ def edit_wish(request, pk):
             logger.warning(
                 f"Failed to update wish ID {pk} for user '{request.user.username}'. Form errors: {form.errors.as_json()}")
     else:
-        form = WishForm(instance=wish)
+        form = WishForm(instance=wish)  # Initialize form for GET requests
     return render(request, 'wishes/edit_wish.html', {'form': form, 'wish': wish})
 
 

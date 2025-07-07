@@ -4,15 +4,16 @@
 {% block title %}Edit Wish: {{ wish.title }}{% endblock %}
 
 {% block content %}
-    <h2>Edit Wish: {{ wish.title }}</h2>
-    <form method="post" enctype="multipart/form-data">
+    <h2 class="text-2xl font-bold text-gray-800 mb-4">Edit Wish: {{ wish.title }}</h2>
+    <form method="post" enctype="multipart/form-data" class="space-y-4 bg-white p-6 rounded-lg shadow-md">
         {% csrf_token %}
         {% for field in form %}
             <div class="form-group">
                 {# Special handling for boolean fields (checkboxes) for better display #}
                 {% if field.name == 'private' or field.name == 'completed' %}
-                    <label>
-                        {{ field }} {{ field.label }}
+                    <label class="inline-flex items-center text-sm font-medium text-gray-700 cursor-pointer">
+                        {{ field }}
+                        <span class="ml-2">{{ field.label }}</span>
                     </label>
                 {% else %}
                     {{ field.label_tag }}
@@ -20,14 +21,16 @@
                 {% endif %}
 
                 {% if field.help_text %}
-                    <small style="color: #666;">{{ field.help_text }}</small>
+                    <p class="text-xs text-gray-500 mt-1">{{ field.help_text }}</p>
                 {% endif %}
                 {% for error in field.errors %}
-                    <p style="color: red;">{{ error }}</p>
+                    <p class="text-red-500 text-xs italic mt-1">{{ error }}</p>
                 {% endfor %}
             </div>
         {% endfor %}
-        <button type="submit" class="button" style="background-color: #ffc107;">Update Wish</button>
-        <a href="{% url 'wish_detail' wish.pk %}" class="button" style="background-color: #6c757d; margin-left: 10px;">Cancel</a>
+        <div class="flex items-center space-x-4 mt-6">
+            <button type="submit" class="button bg-yellow-500 hover:bg-yellow-600 focus:ring-yellow-500">Update Wish</button>
+            <a href="{% url 'wish_detail' wish.pk %}" class="button bg-gray-500 hover:bg-gray-600 focus:ring-gray-500">Cancel</a>
+        </div>
     </form>
 {% endblock %}
