@@ -9,8 +9,16 @@
         {% csrf_token %}
         {% for field in form %}
             <div class="form-group">
-                {{ field.label_tag }}
-                {{ field }}
+                {# Special handling for boolean fields (checkboxes) for better display #}
+                {% if field.name == 'private' or field.name == 'completed' %}
+                    <label>
+                        {{ field }} {{ field.label }}
+                    </label>
+                {% else %}
+                    {{ field.label_tag }}
+                    {{ field }}
+                {% endif %}
+
                 {% if field.help_text %}
                     <small style="color: #666;">{{ field.help_text }}</small>
                 {% endif %}
