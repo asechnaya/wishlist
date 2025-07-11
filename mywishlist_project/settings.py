@@ -33,12 +33,24 @@ DEBUG = True
 # List of hosts/domain names that this Django site can serve.
 # In production, replace [] with your domain(s) or server IP.
 # Example: ALLOWED_HOSTS = ['your_domain.com', 'www.your_domain.com', 'your_server_ip_address']
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '10.0.2.2',         # Allow Android emulator to connect
+    '127.0.0.1',        # Allow localhost access (web browser)
+    'localhost',        # Allow localhost access (web browser)
+    '[::1]',            # IPv6 localhost
+    # Add your actual domain names when deploying to production:
+    # 'your_domain.com',
+    # 'www.your_domain.com',
+    # Your local machine's IP if you're testing with a physical device on the same Wi-Fi:
+    # '192.168.1.X',
+]
+
 
 
 # ==============================================================================
 # Application Definition
 # ==============================================================================
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',

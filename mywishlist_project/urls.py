@@ -23,9 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('wishes.urls')),  # Your existing web app URLs
     path('accounts/', include('django.contrib.auth.urls')),  # For login/logout
-
     path('api/', include('wishes.api_urls')), # NEW: Include your API URLs
-    path('accounts/', include('django.contrib.auth.urls')),
 
 ]
 
