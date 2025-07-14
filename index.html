@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Wishlist - Static Demo</title>
+    <!-- Link to Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Apply basic body styles: Inter font, light gray background, dark text.
+           Use flexbox to center content vertically and horizontally on the page. */
+        body {
+            font-family: 'Inter', sans-serif;
+            @apply bg-gray-100 text-gray-800 flex items-center justify-center min-h-screen;
+        }
+        /* Style for the main card container: white background, shadow, rounded corners, padding,
+           and responsive width. */
+        .card {
+            @apply bg-white shadow-lg rounded-lg p-8 max-w-md w-full text-center;
+        }
+        /* Base styles for buttons: inline-flex for alignment, padding, border,
+           font styling, rounded corners, shadow, white text on blue background,
+           and hover/focus effects. */
+        .button {
+            @apply inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
+        }
+        /* Added margin-top for spacing between buttons */
+        .button + .button {
+            @apply mt-4 sm:mt-0 sm:ml-4; /* Stacks on mobile, side-by-side on desktop */
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1 class="text-3xl font-bold text-gray-800 mb-4">Welcome to My Wishlist!</h1>
+        <p class="text-gray-600 mb-6">
+            This is a demo and entry point for the My Wishlist application.
+            You can view the project code or access the live application.
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <a href="https://github.com/asechnaya/wishlist" target="_blank" class="button">
+                View Project on GitHub
+            </a>
+            <!-- NEW: Button to link to your live Django website -->
+            <a href="asechnaya.github.io" target="_blank" class="button bg-green-600 hover:bg-green-700 focus:ring-green-500">
+                Go to Live App
+            </a>
+        </div>
+        <p class="text-sm text-gray-500 mt-4">
+            (This page is a static demo. The live app requires a running backend.)
+        </p>
+    </div>
+</body>
+</html>
