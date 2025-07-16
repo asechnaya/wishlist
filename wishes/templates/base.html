@@ -10,8 +10,10 @@
     <style>
         /* Custom styles to override or complement Tailwind where necessary */
         body {
-            font-family: 'Inter', sans-serif; /* Using Inter font as requested */
-            @apply bg-gray-100 text-gray-800; /* Apply basic background and text color */
+            font-family: 'Inter', sans-serif; /* Using Inter font */
+            /* Subtle gradient background for a modern feel */
+            background: linear-gradient(to bottom right, #e0f2f7, #e8f5e9);
+            @apply text-gray-800 min-h-screen;
         }
         /* Ensure form-group labels are block level and have margin */
         .form-group label {
@@ -25,9 +27,9 @@
         .form-group input[type="file"] {
             @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm;
         }
-        /* Style for buttons */
+        /* Style for buttons - unified look */
         .button {
-            @apply inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
+            @apply inline-flex items-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200;
         }
         /* Specific styles for logout button to look like a link */
         .logout-form {
@@ -64,18 +66,18 @@
             @apply flex flex-wrap gap-2 mb-4;
         }
         .tag-filter a {
-            @apply px-3 py-1 bg-gray-200 rounded-md text-gray-700 no-underline hover:bg-gray-300;
+            @apply px-3 py-1 bg-gray-200 rounded-md text-gray-700 no-underline hover:bg-gray-300 transition-colors duration-200;
         }
         .tag-filter a.active {
             @apply bg-blue-600 text-white hover:bg-blue-700;
         }
-        /* Tag link styling (used on wish detail pages) */
+        /* Tag link styling (used on wish detail pages and cards) */
         .tag-link {
-            @apply inline-block px-2 py-1 bg-blue-100 text-blue-800 rounded-md no-underline text-xs font-medium mr-1 mb-1 hover:bg-blue-200;
+            @apply inline-block px-2 py-1 bg-blue-100 text-blue-800 rounded-full no-underline text-xs font-medium mr-1 mb-1 hover:bg-blue-200 transition-colors duration-200;
         }
-        /* Wish card (general styling, specific layouts in main_feed) */
+        /* General wish card styling (base for specific layouts) */
         .wish-card {
-            @apply border border-gray-200 rounded-lg shadow-sm overflow-hidden bg-white;
+            @apply border border-gray-200 rounded-lg shadow-md overflow-hidden bg-white;
         }
         .wish-card img {
             @apply w-full h-48 object-cover; /* Adjust height as needed */
@@ -93,13 +95,13 @@
 </head>
 <body class="min-h-screen">
     <div class="container mx-auto p-4 sm:px-6 lg:px-8">
-        <nav class="bg-white shadow-md rounded-lg p-4 mb-6 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+        <nav class="bg-white shadow-lg rounded-lg p-4 mb-8 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
             <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
                 <!-- Main site title link -->
-                <a href="{% url 'main_feed' %}" class="text-xl font-bold text-gray-800 hover:text-blue-600">My Wishlist</a>
+                <a href="{% url 'main_feed' %}" class="text-2xl font-extrabold text-blue-700 hover:text-blue-800 transition-colors duration-200">My Wishlist</a>
                 <!-- Link to user's private list if logged in -->
                 {% if user.is_authenticated %}
-                    <a href="{% url 'wish_list' %}" class="text-gray-700 hover:text-blue-600 font-medium">My Private List</a>
+                    <a href="{% url 'wish_list' %}" class="text-gray-700 hover:text-blue-600 font-medium text-lg">My Private List</a>
                 {% endif %}
             </div>
             <div class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
@@ -113,7 +115,7 @@
                     </form>
                 {% else %}
                     <a href="{% url 'login' %}" class="text-gray-700 hover:text-blue-600 font-medium">Login</a>
-                    <a href="{% url 'register' %}" class="button ml-2">Register</a>
+                    <a href="{% url 'register' %}" class="button ml-2 bg-green-600 hover:bg-green-700 focus:ring-green-500">Register</a>
                 {% endif %}
             </div>
         </nav>
@@ -133,9 +135,6 @@
         // JavaScript to detect device type and add a class to the body
         document.addEventListener('DOMContentLoaded', function() {
             const body = document.body;
-
-            // More reliable detection based on screen width (common for responsive design)
-            // You can adjust the breakpoint (e.g., 768px for md breakpoint in Tailwind)
             const isMobile = window.innerWidth < 768; // Tailwind's 'md' breakpoint is 768px
 
             if (isMobile) {
@@ -146,7 +145,6 @@
                 body.classList.remove('is-mobile');
             }
 
-            // Also add a listener for window resize to update the class dynamically
             window.addEventListener('resize', function() {
                 const currentIsMobile = window.innerWidth < 768;
                 if (currentIsMobile && !body.classList.contains('is-mobile')) {

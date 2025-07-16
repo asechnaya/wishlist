@@ -6,8 +6,7 @@
 {% block content %}
     <h2 class="text-2xl font-bold text-gray-800 mb-4">My Wishes</h2>
     <p class="mb-6 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
-        {# This is the "Add New Wish" button #}
-        <a href="{% url 'add_wish' %}" class="button">Add New Wish</a>
+        <a href="{% url 'add_wish' %}" class="button bg-blue-600 hover:bg-blue-700">Add New Wish</a>
         {% if user.is_authenticated %}
             <a href="{% url 'public_wish_list' user.username %}" class="button bg-gray-500 hover:bg-gray-600">View My Public Wishlist</a>
         {% endif %}
@@ -22,16 +21,20 @@
     </div>
 
     {# Active Wishes Section #}
-    <h3 class="text-xl font-semibold text-gray-700 mb-3">Active Wishes</h3>
+    <h3 class="text-xl font-semibold text-gray-700 mb-3 border-b-2 border-blue-300 pb-2">Active Wishes</h3>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
         {% if active_wishes %}
             {% for wish in active_wishes %}
-                <div class="wish-card transform hover:scale-105 transition-transform duration-200 ease-in-out">
+                <div class="wish-card transform hover:scale-105 transition-transform duration-200 ease-in-out p-4">
                     {% if wish.image %}
-                        <img src="{{ wish.image.url }}" alt="{{ wish.title }}" class="w-full h-48 object-cover rounded-t-lg">
+                        <img src="{{ wish.image.url }}" alt="{{ wish.title }}" class="w-full h-48 object-cover rounded-md mb-3 border border-gray-200">
+                    {% else %}
+                        <div class="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-500 text-sm rounded-md mb-3 border border-gray-200">
+                            No Image
+                        </div>
                     {% endif %}
-                    <div class="wish-card-content">
-                        <h3 class="text-lg font-semibold mb-2">
+                    <div class="wish-card-content p-0">
+                        <h3 class="text-lg font-semibold mb-1 leading-tight">
                             <a href="{% url 'wish_detail' wish.pk %}" class="text-blue-600 hover:underline">
                                 {{ wish.title }}
                             </a>
@@ -50,21 +53,25 @@
                 </div>
             {% endfor %}
         {% else %}
-            <p class="col-span-full text-center text-gray-500">You don't have any active wishes yet. <a href="{% url 'add_wish' %}" class="text-blue-600 hover:underline">Add one!</a></p>
+            <p class="col-span-full text-center text-gray-500 text-lg py-10">You don't have any active wishes yet. <a href="{% url 'add_wish' %}" class="text-blue-600 hover:underline">Add one!</a></p>
         {% endif %}
     </div>
 
     {# Completed Wishes Section #}
-    <h3 class="text-xl font-semibold text-gray-700 mb-3">Completed Wishes</h3>
+    <h3 class="text-xl font-semibold text-gray-700 mb-3 border-b-2 border-gray-300 pb-2">Completed Wishes</h3>
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {% if completed_wishes %}
             {% for wish in completed_wishes %}
-                <div class="wish-card opacity-70 line-through transform hover:scale-105 transition-transform duration-200 ease-in-out">
+                <div class="wish-card opacity-70 line-through transform hover:scale-105 transition-transform duration-200 ease-in-out p-4">
                     {% if wish.image %}
-                        <img src="{{ wish.image.url }}" alt="{{ wish.title }}" class="w-full h-48 object-cover rounded-t-lg">
+                        <img src="{{ wish.image.url }}" alt="{{ wish.title }}" class="w-full h-48 object-cover rounded-md mb-3 border border-gray-200">
+                    {% else %}
+                        <div class="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-500 text-sm rounded-md mb-3 border border-gray-200">
+                            No Image
+                        </div>
                     {% endif %}
-                    <div class="wish-card-content">
-                        <h3 class="text-lg font-semibold mb-2">
+                    <div class="wish-card-content p-0">
+                        <h3 class="text-lg font-semibold mb-1 leading-tight">
                             <a href="{% url 'wish_detail' wish.pk %}" class="text-blue-600 hover:underline">
                                 {{ wish.title }}
                             </a>
@@ -83,7 +90,7 @@
                 </div>
             {% endfor %}
         {% else %}
-            <p class="col-span-full text-center text-gray-500">You don't have any completed wishes yet.</p>
+            <p class="col-span-full text-center text-gray-500 text-lg py-10">You don't have any completed wishes yet.</p>
         {% endif %}
     </div>
 {% endblock %}

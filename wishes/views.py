@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from .models import Wish, Tag
 from .forms import WishForm
+from django.db.models import Q  # Для использования OR-условий в фильтрации
 
 logger = logging.getLogger('wishes')
 
@@ -17,26 +18,31 @@ logger = logging.getLogger('wishes')
 def main_feed(request):
     logger.debug("Accessing main public feed.")
 
-    # Start with all public and non-completed wishes
-    all_public_wishes_query = Wish.objects.filter(private=False, completed=False)
+    # ИЗМЕНЕНО: Фильтруем желания, чтобы они были публичными, незавершенными И имели изображение
+    all_public_wishes_query = Wish.objects.filter(
+        private=False,
+        completed=False
+    ).exclude(Q(image__isnull=True) | Q(image=''))  # Исключаем, если image is null ИЛИ image пустая строка
 
-    # Get all tags that are associated with public, non-completed wishes
-    tags = Tag.objects.filter(wish__private=False, wish__completed=False).distinct()
+    # Получаем все теги, связанные с публичными, незавершенными желаниями, которые имеют изображение
+    tags = Tag.objects.filter(
+        wish__private=False,
+        wish__completed=False
+    ).exclude(Q(wish__image__isnull=True) | Q(wish__image='')).distinct()
+
     selected_tag = request.GET.get('tag')
 
-    # Apply filtering BEFORE ordering and slicing
     if selected_tag:
         all_public_wishes_query = all_public_wishes_query.filter(tags__name=selected_tag)
         logger.debug(f"Main feed filtered by tag: '{selected_tag}'.")
 
-    # Now apply ordering and slicing
-    all_public_wishes = all_public_wishes_query.order_by('-created_at')[:20]  # Limit to 20 for a feed
+    all_public_wishes = all_public_wishes_query.order_by('-created_at')[:20]
 
     context = {
         'wishes': all_public_wishes,
         'tags': tags,
         'selected_tag': selected_tag,
-        'is_main_feed': True  # A flag to differentiate this template from others
+        'is_main_feed': True
     }
     logger.info(f"Main feed displayed. Total public wishes: {all_public_wishes.count()}")
     return render(request, 'wishes/main_feed.html', context)
@@ -51,11 +57,11 @@ def register(request):
             login(request, user)
             messages.success(request, 'Registration successful! You are now logged in.')
             logger.info(f"User '{user.username}' registered and logged in successfully.")
-            return redirect('wish_list')  # Redirect to user's private wish list
+            return redirect('wish_list')
         else:
             logger.warning(f"Registration failed for user. Form errors: {form.errors.as_json()}")
     else:
-        form = UserCreationForm()  # Initialize form for GET requests
+        form = UserCreationForm()
         logger.debug("Displaying registration form.")
     return render(request, 'registration/register.html', {'form': form})
 
@@ -101,7 +107,7 @@ def add_wish(request):
             logger.warning(
                 f"Failed to add wish for user '{request.user.username}'. Form errors: {form.errors.as_json()}")
     else:
-        form = WishForm()  # Initialize form for GET requests
+        form = WishForm()
         logger.debug(f"Displaying add wish form for user '{request.user.username}'.")
     return render(request, 'wishes/add_wish.html', {'form': form})
 
@@ -123,8 +129,20 @@ def public_wish_list(request, username):
     logger.debug(f"Accessing public wish list for username: '{username}'. Filter tag: {request.GET.get('tag')}")
     try:
         owner = get_object_or_404(User, username=username)
-        wishes = Wish.objects.filter(user=owner, private=False, completed=False)
-        tags = Tag.objects.filter(wish__user=owner, wish__private=False, wish__completed=False).distinct()
+        # ИЗМЕНЕНО: Фильтруем желания, чтобы они были публичными, незавершенными И имели изображение
+        wishes = Wish.objects.filter(
+            user=owner,
+            private=False,
+            completed=False
+        ).exclude(Q(image__isnull=True) | Q(image=''))
+
+        # ИЗМЕНЕНО: Фильтруем теги по публичным, незавершенным желаниям, которые имеют изображение
+        tags = Tag.objects.filter(
+            wish__user=owner,
+            wish__private=False,
+            wish__completed=False
+        ).exclude(Q(wish__image__isnull=True) | Q(wish__image='')).distinct()
+
         selected_tag = request.GET.get('tag')
 
         if selected_tag:
@@ -142,7 +160,7 @@ def public_wish_list(request, username):
     except Exception as e:
         logger.error(f"Error accessing public wish list for username '{username}': {e}", exc_info=True)
         messages.error(request, f"Could not find a wishlist for user '{username}'.")
-        return redirect('main_feed')  # Redirect to main feed if public list not found
+        return redirect('main_feed')
     return render(request, 'wishes/public_wish_list.html', context)
 
 
@@ -150,12 +168,17 @@ def public_wish_detail(request, username, pk):
     logger.debug(f"Accessing public wish detail for username: '{username}', wish PK: {pk}")
     try:
         owner = get_object_or_404(User, username=username)
+        # ИЗМЕНЕНО: Получаем желание, убеждаясь, что оно принадлежит этому владельцу, не является приватным, незавершенным И имеет изображение
         wish = get_object_or_404(Wish, pk=pk, user=owner, private=False, completed=False)
+        # Дополнительная проверка, чтобы убедиться, что у желания есть изображение, если оно должно быть публичным
+        if not wish.image or not wish.image.url:
+            raise Http404(
+                "Wish not found or does not have a public image.")  # Импортируйте Http404, если будете использовать
         logger.info(f"Public wish '{wish.title}' (ID: {pk}) displayed for owner '{username}'.")
     except Exception as e:
         logger.error(f"Error accessing public wish ID {pk} for user '{username}': {e}", exc_info=True)
-        messages.error(request, "The wish you requested could not be found or is private/completed.")
-        return redirect('main_feed')  # Redirect to main feed if public wish not found
+        messages.error(request, "The wish you requested could not be found or is private/completed/no image.")
+        return redirect('main_feed')
     return render(request, 'wishes/public_wish_detail.html', {'wish': wish, 'owner': owner})
 
 
@@ -183,7 +206,7 @@ def edit_wish(request, pk):
             logger.warning(
                 f"Failed to update wish ID {pk} for user '{request.user.username}'. Form errors: {form.errors.as_json()}")
     else:
-        form = WishForm(instance=wish)  # Initialize form for GET requests
+        form = WishForm(instance=wish)
     return render(request, 'wishes/edit_wish.html', {'form': form, 'wish': wish})
 
 

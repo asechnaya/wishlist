@@ -13,8 +13,7 @@ class WishForm(forms.ModelForm):
 
     class Meta:
         model = Wish
-        # Include the new 'private' field here
-        fields = ['title', 'image', 'price', 'shop_link', 'description', 'private']
+        fields = ['title', 'image', 'price', 'shop_link', 'description', 'private', 'completed']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

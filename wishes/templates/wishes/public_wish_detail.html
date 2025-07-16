@@ -1,23 +1,26 @@
-<!-- wishes/templates/wishes/public_wish_detail.html -->
+<!-- wishes/templates/wishes/wish_detail.html -->
 {% extends 'base.html' %}
 
-{% block title %}{{ wish.title }} - {{ owner.username }}'s Wishlist{% endblock %}
+{% block title %}{{ wish.title }}{% endblock %}
 
 {% block content %}
-    <h2 class="text-2xl font-bold text-gray-800 mb-4">{{ wish.title }} (from {{ owner.username }}'s Wishlist)</h2>
+    <h2 class="text-2xl font-bold text-gray-800 mb-4">{{ wish.title }}</h2>
     {% if wish.image %}
         <img src="{{ wish.image.url }}" alt="{{ wish.title }}" class="w-full max-w-sm h-auto object-cover rounded-lg shadow-md mb-4">
+    {% else %}
+        {# Плейсхолдер для изображения на странице деталей #}
+        <div class="w-full max-w-sm h-64 bg-gray-200 flex items-center justify-center text-gray-500 text-lg rounded-lg shadow-md mb-4">
+            No Image
+        </div>
     {% endif %}
-    <p class="text-gray-700 mb-2"><strong>Price:</strong> {% if wish.price %}{{ wish.price }}{% else %}N/A{% endif %}</p>
+    {# ИЗМЕНЕНО: Отображаем цену с валютой #}
+    <p class="text-gray-700 mb-2"><strong>Price:</strong> {% if wish.price %}{{ wish.price }} {{ wish.currency }}{% else %}N/A{% endif %}</p>
     <p class="text-gray-700 mb-2"><strong>Shop Link:</strong> {% if wish.shop_link %}<a href="{{ wish.shop_link }}" target="_blank" class="text-blue-600 hover:underline">{{ wish.shop_link }}</a>{% else %}N/A{% endif %}</p>
     <p class="text-gray-700 mb-2"><strong>Description:</strong> {% if wish.description %}{{ wish.description }}{% else %}No description{% endif %}</p>
     <p class="text-gray-700 mb-2"><strong>Tags:</strong>
         {% if wish.tags.all %}
             {% for tag in wish.tags.all %}
-                {# Tags on public detail page should link back to the owner's public wishlist filtered by tag #}
-                <a href="{% url 'public_wish_list' owner.username %}?tag={{ tag.name }}" class="tag-link">
-                    <span>{{ tag.name }}</span>
-                </a>{% if not forloop.last %}, {% endif %}
+                <a href="{% url 'wish_list' %}?tag={{ tag.name }}" class="tag-link"><span>{{ tag.name }}</span></a>{% if not forloop.last %}, {% endif %}
             {% endfor %}
         {% else %}
             No tags
@@ -26,30 +29,11 @@
     <p class="text-gray-700 mb-4"><strong>Added On:</strong> {{ wish.created_at|date:"F d, Y P" }}</p>
 
     <div class="flex flex-wrap items-center space-x-4 mt-6">
-        {# Link back to the owner's public wishlist #}
-        <a href="{% url 'public_wish_list' owner.username %}" class="button bg-gray-500 hover:bg-gray-600 focus:ring-gray-500">Back to {{ owner.username }}'s Wishlist</a>
+        <a href="{% url 'wish_list' %}" class="button bg-gray-500 hover:bg-gray-600 focus:ring-gray-500">Back to My Wishlist</a>
 
-        {# NEW: Edit and Delete buttons, visible only if the logged-in user is the wish owner #}
         {% if user.is_authenticated and user == wish.user %}
             <a href="{% url 'edit_wish' wish.pk %}" class="button bg-yellow-500 hover:bg-yellow-600 focus:ring-yellow-500">Edit Wish</a>
             <a href="{% url 'delete_wish' wish.pk %}" class="button bg-red-500 hover:bg-red-600 focus:ring-red-500">Delete Wish</a>
         {% endif %}
     </div>
-
-    <style>
-        /* Basic styling for the clickable tags to make them look like links */
-        .tag-link {
-            text-decoration: none;
-            color: #007bff; /* Standard link blue */
-            background-color: #e9ecef; /* Light background */
-            padding: 3px 8px;
-            border-radius: 4px;
-            margin-right: 5px;
-            display: inline-block; /* Allows padding and margin */
-        }
-        .tag-link:hover {
-            background-color: #007bff;
-            color: white;
-        }
-    </style>
 {% endblock %}

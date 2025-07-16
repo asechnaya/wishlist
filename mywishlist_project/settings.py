@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'wishes',  # Your custom 'wishes' app
+    'djmoney',
+    'djmoney.contrib.exchange',
 ]
 
 MIDDLEWARE = [

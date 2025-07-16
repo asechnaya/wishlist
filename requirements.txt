@@ -3,3 +3,7 @@ Pillow==10.3.0 # For image handling in Django
 gunicorn==22.0.0 # WSGI HTTP Server for production deployment
 psycopg2-binary==2.9.9 # PostgreSQL adapter (if you use PostgreSQL in production)
 djangorestframework==3.16.0
+django-money==3.5.4
+django-money[exchange]==3.5.4
+django-money-format
+djangorestframework-money

@@ -9,12 +9,20 @@
         {% csrf_token %}
         {% for field in form %}
             <div class="form-group">
-                {# Special handling for boolean fields (checkboxes) for better display #}
+                {# Специальная обработка для булевых полей (чекбоксов) и поля выбора (select) #}
                 {% if field.name == 'private' or field.name == 'completed' %}
                     <label class="inline-flex items-center text-sm font-medium text-gray-700 cursor-pointer">
                         {{ field }}
                         <span class="ml-2">{{ field.label }}</span>
                     </label>
+                {% elif field.name == 'currency' %}
+                    {{ field.label_tag }}
+                    <div class="relative">
+                        {{ field }}
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                        </div>
+                    </div>
                 {% else %}
                     {{ field.label_tag }}
                     {{ field }}
