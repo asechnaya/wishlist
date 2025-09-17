@@ -1,98 +1,63 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wish Detail</title>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800">
+    {% extends 'base.html' %}
 
-{% block title %}Wish Detail{% endblock %}
+    {% block content %}
+    <div class="wish-card-detail">
+        {% if is_owner %}
+            <div class="flex justify-end mb-4 space-x-2">
+                <a href="{% url 'edit_wish' wish.pk %}" class="button button-warning">
+                    Edit Wish
+                </a>
+                <a href="{% url 'delete_wish' wish.pk %}" class="button button-danger">
+                    Delete Wish
+                </a>
+            </div>
+        {% endif %}
 
-{% block content %}
-    <h2 class="text-4xl font-extrabold text-gray-900 mb-6 border-b-2 pb-2">Wish Detail</h2>
-    <p class="mb-8">
-        <a href="{% url 'add_wish' %}" class="button button-primary">Add New Wish</a>
-    </p>
+        <div class="md:flex md:items-start md:space-x-8">
+            <div class="w-full md:w-1/2">
+                {% if wish.image %}
+                    <img src="{{ wish.image.url }}" alt="{{ wish.title }}" class="w-full rounded-xl shadow-lg border border-gray-200">
+                {% else %}
+                    <div class="w-full h-80 bg-gray-200 rounded-xl flex items-center justify-center text-gray-500 shadow-lg border border-gray-200">No Image</div>
+                {% endif %}
+            </div>
+            
+            <div class="w-full md:w-1/2 mt-8 md:mt-0">
+                <h1 class="text-3xl font-extrabold text-gray-900 leading-tight mb-2">{{ wish.title }}</h1>
+                <p class="text-gray-500 mb-4">Wished by <a href="{% url 'public_wish_list' owner.username %}" class="font-semibold text-indigo-700 hover:underline">{{ owner.username }}</a></p>
+                
+                <div class="mb-6">
+                    <span class="text-3xl font-extrabold text-purple-700">{{ wish.price }}</span>
+                </div>
+                
+                <p class="text-sm text-gray-700 mb-4">{{ wish.description }}</p>
 
-    {% if active_wishes %}
-        <h3 class="text-2xl font-bold text-gray-800 mt-8 mb-4 border-b-2 pb-2">Active Wishes</h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {% for wish in active_wishes %}
-                <div class="wish-card">
-                    <a href="{% url 'wish_detail' wish.pk %}">
-                        <div class="wish-card-image-container">
-                            {% if wish.image %}
-                                <img src="{{ wish.image.url }}" alt="{{ wish.title }}" class="wish-card-image">
-                            {% else %}
-                                <div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500 text-lg">
-                                    <span>No Image</span>
-                                </div>
-                            {% endif %}
-                        </div>
-                    </a>
-                    <div class="wish-card-content">
-                        <div>
-                            <h3 class="leading-tight mb-2">
-                                <a href="{% url 'wish_detail' wish.pk %}" class="hover:text-indigo-600 transition-colors duration-200">{{ wish.title }}</a>
-                            </h3>
-                            <p class="wish-card-user">
-                                By: <a href="{% url 'public_wish_list' wish.user.username %}" class="text-green-600 hover:underline transition-colors duration-200 font-medium">{{ wish.user.username }}</a>
-                            </p>
-                        </div>
-                        <div class="mt-4">
-                            <p class="wish-card-price mb-2">
-                                {% if wish.price %}{{ wish.price }}{% else %}N/A{% endif %}
-                            </p>
-                            {% if wish.tags.exists %}
-                                <div class="flex flex-wrap gap-2">
-                                    {% for tag in wish.tags.all %}
-                                        <a href="{% url 'wish_list' %}?tag={{ tag.name }}" class="tag-link">{{ tag.name }}</a>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
+                <div class="space-y-2 text-sm text-gray-600">
+                    <p><strong>Added on:</strong> {{ wish.created_at|date:"F d, Y P" }}</p>
+                    <p><strong>Shop link:</strong> {% if wish.shop_link %}<a href="{{ wish.shop_link }}" target="_blank" class="text-blue-600 hover:underline">{{ wish.shop_link }}</a>{% else %}N/A{% endif %}</p>
+                </div>
+
+                {% if wish.tags.all %}
+                    <div class="mt-6">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-2">Tags:</h3>
+                        <div class="flex flex-wrap gap-2">
+                            {% for tag in wish.tags.all %}
+                                <a href="{% url 'public_wish_list' owner.username %}?tag={{ tag.name }}" class="tag-link hover:bg-purple-400">{{ tag.name }}</a>
+                            {% endfor %}
                         </div>
                     </div>
-                </div>
-            {% endfor %}
+                {% endif %}
+            </div>
         </div>
-    {% else %}
-        <p class="col-span-full text-center text-gray-500 text-lg py-10">You have no active wishes yet. <a href="{% url 'add_wish' %}" class="text-indigo-600 hover:underline">Add one!</a></p>
-    {% endif %}
-
-    {% if completed_wishes %}
-        <h3 class="text-2xl font-bold text-gray-800 mt-12 mb-4 border-b-2 pb-2">Completed Wishes</h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 opacity-70">
-            {% for wish in completed_wishes %}
-                <div class="wish-card">
-                    <a href="{% url 'wish_detail' wish.pk %}">
-                        <div class="wish-card-image-container">
-                            {% if wish.image %}
-                                <img src="{{ wish.image.url }}" alt="{{ wish.title }}" class="wish-card-image">
-                            {% else %}
-                                <div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500 text-lg">
-                                    <span>No Image</span>
-                                </div>
-                            {% endif %}
-                        </div>
-                    </a>
-                    <div class="wish-card-content">
-                        <div>
-                            <h3 class="leading-tight mb-2 line-through">
-                                <a href="{% url 'wish_detail' wish.pk %}" class="hover:text-indigo-600 transition-colors duration-200">{{ wish.title }}</a>
-                            </h3>
-                            <p class="wish-card-user">
-                                By: <a href="{% url 'public_wish_list' wish.user.username %}" class="text-green-600 hover:underline transition-colors duration-200 font-medium">{{ wish.user.username }}</a>
-                            </p>
-                        </div>
-                        <div class="mt-4">
-                            <p class="wish-card-price mb-2">
-                                {% if wish.price %}{{ wish.price }}{% else %}N/A{% endif %}
-                            </p>
-                            {% if wish.tags.exists %}
-                                <div class="flex flex-wrap gap-2">
-                                    {% for tag in wish.tags.all %}
-                                        <a href="{% url 'wish_list' %}?tag={{ tag.name }}" class="tag-link">{{ tag.name }}</a>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-{% endblock %}
+    </div>
+    {% endblock %}
+</body>
+</html>
