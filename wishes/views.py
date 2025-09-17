@@ -5,11 +5,11 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.contrib import messages
 from django import forms as forms
 from django.contrib.auth import get_user_model
 from .models import Wish, Tag, User
 from .forms import WishForm, ProfileForm
-from django.contrib import messages
 
 # Initialize logger for the wishes app
 logger = logging.getLogger('wishes')

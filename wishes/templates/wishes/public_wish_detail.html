@@ -1,10 +1,9 @@
-<!-- wishes/templates/wishes/wish_list.html -->
 {% extends 'base.html' %}
 
-{% block title %}My Private List{% endblock %}
+{% block title %}Wish Detail{% endblock %}
 
 {% block content %}
-    <h2 class="text-4xl font-extrabold text-gray-900 mb-6 border-b-2 pb-2">My Private List</h2>
+    <h2 class="text-4xl font-extrabold text-gray-900 mb-6 border-b-2 pb-2">Wish Detail</h2>
     <p class="mb-8">
         <a href="{% url 'add_wish' %}" class="button button-primary">Add New Wish</a>
     </p>
@@ -38,7 +37,7 @@
                             <p class="wish-card-price mb-2">
                                 {% if wish.price %}{{ wish.price }}{% else %}N/A{% endif %}
                             </p>
-                            {% if wish.tags.all %}
+                            {% if wish.tags.exists %}
                                 <div class="flex flex-wrap gap-2">
                                     {% for tag in wish.tags.all %}
                                         <a href="{% url 'wish_list' %}?tag={{ tag.name }}" class="tag-link">{{ tag.name }}</a>
@@ -83,7 +82,7 @@
                             <p class="wish-card-price mb-2">
                                 {% if wish.price %}{{ wish.price }}{% else %}N/A{% endif %}
                             </p>
-                            {% if wish.tags.all %}
+                            {% if wish.tags.exists %}
                                 <div class="flex flex-wrap gap-2">
                                     {% for tag in wish.tags.all %}
                                         <a href="{% url 'wish_list' %}?tag={{ tag.name }}" class="tag-link">{{ tag.name }}</a>
@@ -96,5 +95,4 @@
             {% endfor %}
         </div>
     {% endif %}
-
 {% endblock %}
