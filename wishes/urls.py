@@ -1,37 +1,27 @@
 # wishes/urls.py
 
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 urlpatterns = [
-    # Main public feed page for all public wishes
-    # This will be the site's homepage: http://127.0.0.1:8000/
+    # Main public feed (homepage)
     path('', views.main_feed, name='main_feed'),
 
-    # User's own private wish list (previously at '/')
-    # Now accessible at: http://127.0.0.1:8000/my-wishes/
+    # Private wishlist for the logged-in user
     path('my-wishes/', views.wish_list, name='wish_list'),
 
-    # Page to add a new wish
+    # Actions for creating, editing, and deleting wishes
     path('add/', views.add_wish, name='add_wish'),
+    path('<int:pk>/edit/', views.edit_wish, name='edit_wish'),
+    path('<int:pk>/delete/', views.delete_wish, name='delete_wish'),
 
-    # Page to view details of a user's own wish (requires login)
-    # This URL remains the same, but links to it might change from wish_list
-    path('<int:pk>/', views.wish_detail, name='wish_detail'),
-
-    # User registration page
+    # User authentication paths
     path('register/', views.register, name='register'),
+    path('profile/', views.profile, name='profile'),
 
-    # Public wish list page for a specific user (e.g., /wisher/username/)
+    # Public wishlist for a specific user
     path('wisher/<str:username>/', views.public_wish_list, name='public_wish_list'),
 
-    # Public wish detail page for a specific wish belonging to a specific user
-    # (e.g., /wisher/username/123/)
+    # Public wish detail page for a specific user and wish
     path('wisher/<str:username>/<int:pk>/', views.public_wish_detail, name='public_wish_detail'),
-
-    # Page to edit a user's own wish (requires login)
-    path('<int:pk>/edit/', views.edit_wish, name='edit_wish'),
-
-    # Page to confirm deletion of a user's own wish (requires login)
-    path('<int:pk>/delete/', views.delete_wish, name='delete_wish'),
 ]
