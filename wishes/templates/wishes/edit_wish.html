@@ -1,60 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Wish</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Wish</title>
 </head>
-<body class="bg-gray-100 font-sans text-gray-800">
-    {% extends 'base.html' %}
+<body class="bg-gradient-to-br from-gray-100 to-gray-200 font-sans text-gray-800 min-h-screen flex items-center justify-center">
+  {% extends 'base.html' %}
 
-    {% block content %}
-    <div class="max-w-xl mx-auto p-8 bg-white rounded-xl shadow-lg border border-gray-200">
-        <h1 class="text-3xl font-extrabold text-gray-900 leading-tight mb-6 text-center">Edit Wish</h1>
+  {% block content %}
+  <div class="w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-gray-200 p-10 transition-transform transform hover:scale-[1.01]">
+    <h1 class="text-4xl font-extrabold text-gray-900 mb-8 text-center">Edit Wish</h1>
 
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {% for field in form %}
-                <div class="form-group">
-                    {# Special handling for boolean fields (checkboxes) for better display #}
-                    {% if field.name == 'private' or field.name == 'completed' %}
-                        <label class="inline-flex items-center text-gray-700">
-                            {{ field }}
-                            <span class="ml-2">{{ field.label }}</span>
-                        </label>
-                    {% elif field.name == 'currency' %}
-                        <label for="{{ field.id_for_label }}" class="text-sm font-medium text-gray-700">{{ field.label }}</label>
-                        <div class="relative">
-                            {{ field }}
-                            <svg class="w-5 h-5 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                    {% elif field.name == 'price' %}
-                         {{ field.label_tag }}
-                        {{ field }}
-                    {% elif field.name == 'tags_input' %}
-                        {{ field.label_tag }}
-                        {{ field }}
-                    {% else %}
-                        {{ field.label_tag }}
-                        {{ field }}
-                    {% endif %}
-
-                    {% if field.help_text %}
-                        <p class="mt-1 text-sm text-gray-500">{{ field.help_text }}</p>
-                    {% endif %}
-                    {% for error in field.errors %}
-                        <p class="mt-1 text-sm text-red-500">{{ error }}</p>
-                    {% endfor %}
-                </div>
-            {% endfor %}
-            <div class="flex justify-between mt-6">
-                <button type="submit" class="button button-primary">Save Changes</button>
-                <a href="{% url 'public_wish_detail' wish.user.username wish.pk %}" class="button button-secondary">Cancel</a>
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="form-group">
+          {% if field.name == 'private' or field.name == 'completed' %}
+            <label class="flex items-center gap-3 text-gray-700 cursor-pointer">
+              {{ field }}
+              <span class="text-lg">{{ field.label }}</span>
+            </label>
+          {% elif field.name == 'currency' %}
+            <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+              {{ field.label }}
+            </label>
+            <div class="relative">
+              {{ field }}
+              <svg class="w-5 h-5 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
             </div>
-        </form>
-    </div>
-    {% endblock %}
+          {% else %}
+            <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+              {{ field.label }}
+            </label>
+            {{ field }}
+          {% endif %}
+
+          {% if field.help_text %}
+            <p class="mt-2 text-sm text-gray-500">{{ field.help_text }}</p>
+          {% endif %}
+          {% for error in field.errors %}
+            <p class="mt-2 text-sm text-red-500">{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endfor %}
+
+      <div class="flex justify-between items-center pt-4 border-t border-gray-200">
+        <button type="submit"
+          class="px-6 py-2 bg-blue-600 text-white font-medium text-lg rounded-xl shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 transition">
+          Save Changes
+        </button>
+        <a href="{% url 'public_wish_detail' wish.user.username wish.pk %}"
+          class="px-6 py-2 bg-gray-200 text-gray-700 font-medium text-lg rounded-xl shadow hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-1 transition">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+  {% endblock %}
 </body>
 </html>

@@ -5,3 +5,4 @@ psycopg2-binary==2.9.9 # PostgreSQL adapter (if you use PostgreSQL in production
 djangorestframework==3.16.0
 django-money==3.5.4
 django-money[exchange]==3.5.4
+django-widget-tweaks==1.5.0

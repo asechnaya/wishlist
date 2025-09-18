@@ -29,15 +29,15 @@
                     <div class="w-full h-80 bg-gray-200 rounded-xl flex items-center justify-center text-gray-500 shadow-lg border border-gray-200">No Image</div>
                 {% endif %}
             </div>
-            
+
             <div class="w-full md:w-1/2 mt-8 md:mt-0">
                 <h1 class="text-3xl font-extrabold text-gray-900 leading-tight mb-2">{{ wish.title }}</h1>
                 <p class="text-gray-500 mb-4">Wished by <a href="{% url 'public_wish_list' owner.username %}" class="font-semibold text-indigo-700 hover:underline">{{ owner.username }}</a></p>
-                
+
                 <div class="mb-6">
                     <span class="text-3xl font-extrabold text-purple-700">{{ wish.price }}</span>
                 </div>
-                
+
                 <p class="text-sm text-gray-700 mb-4">{{ wish.description }}</p>
 
                 <div class="space-y-2 text-sm text-gray-600">
