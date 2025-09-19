@@ -8,7 +8,7 @@ urlpatterns = [
     # User's private wishlist page
     path('my-wishes/', views.wish_list, name='wish_list'),
 
-    # Add new wish page
+    # Add a new wish page
     path('add/', views.add_wish, name='add_wish'),
 
     # Edit wish page

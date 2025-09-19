@@ -107,7 +107,7 @@ def add_wish(request):
             wish.save()
             form._save_tags(wish)  # Call the custom tag-saving method
             logger.info(f"New wish '{wish.title}' added by {request.user.username}.")
-            return redirect('wish_list')
+            return redirect('public_wish_detail', username=request.user.username, pk=wish.pk)
     else:
         form = WishForm()
 
@@ -128,7 +128,7 @@ def edit_wish(request, pk):
             wish.save()
             form._save_tags(wish)  # Call the custom tag-saving method
             logger.info(f"Wish '{wish.title}' (ID: {pk}) updated by {request.user.username}.")
-            return redirect('wish_detail', pk=pk)
+            return redirect('public_wish_detail', username=wish.user.username, pk=wish.pk)
     else:
         form = WishForm(instance=wish)
 

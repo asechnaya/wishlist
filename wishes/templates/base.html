@@ -1,224 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}My Wishlist{% endblock %}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(to bottom right, #f8fafc, #eef2f6);
-            color: #1a202c;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-        nav {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            margin-bottom: 2rem;
-            background-color: white;
-            border-bottom: 2px solid #e2e8f0;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            border-radius: 0.75rem;
-        }
-        @media (min-width: 640px) {
-            nav {
-                flex-direction: row;
-                padding: 1rem 2rem;
-            }
-        }
-        .nav-links {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-        @media (min-width: 640px) {
-            .nav-links {
-                flex-direction: row;
-                margin-top: 0;
-            }
-        }
-        .nav-link {
-            font-weight: 500;
-            color: #4a5568;
-            transition: color 0.2s;
-            text-decoration: none;
-        }
-        .nav-link:hover {
-            color: #2b6cb0;
-        }
-        .button {
-            display: inline-block;
-            padding: 0.625rem 1.25rem;
-            font-size: 1rem;
-            font-weight: 700;
-            color: #ffffff;
-            background-color: #4c51bf;
-            border: none;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            text-align: center;
-            text-decoration: none;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .button:hover {
-            background-color: #3b3f8e;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            transform: translateY(-1px);
-        }
-        .button:active {
-            transform: translateY(1px);
-        }
-        .button-secondary {
-            background-color: #e2e8f0;
-            color: #4a5568;
-        }
-        .button-secondary:hover {
-            background-color: #cbd5e0;
-        }
-        .button-danger {
-            background-color: #e53e3e;
-            color: white;
-        }
-        .button-danger:hover {
-            background-color: #c53030;
-        }
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.5rem;
-            transition: all 0.2s ease-in-out;
-            background-color: #f7fafc;
-        }
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            border-color: #a0aec0;
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.5);
-        }
-        .form-group label {
-            font-weight: 600;
-            color: #2d3748;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-        .tag-link {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            background-color: #e9d5ff;
-            color: #6b46c1;
-            font-size: 0.875rem;
-            font-weight: 600;
-            border-radius: 9999px;
-            transition: background-color 0.2s;
-            text-decoration: none;
-        }
-        .tag-link:hover {
-            background-color: #d6bcfa;
-        }
-        .username-link {
-            text-decoration: none;
-            color: #4a5568;
-            font-weight: 600;
-            transition: color 0.2s;
-        }
-        .username-link:hover {
-            color: #2b6cb0;
-        }
-        .wish-card {
-            background-color: white;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            transition: transform 0.2s;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            border: 1px solid #e2e8f0;
-            transform: scale(1);
-        }
-        .wish-card:hover {
-            transform: scale(1.02);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}Wishes{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  {% block extra_head %}{% endblock %}
 </head>
-<body class="bg-gray-100 font-sans text-gray-800">
-    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
-        <nav class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-            <div class="text-2xl font-bold text-indigo-700">
-                <a href="{% url 'main_feed' %}" class="nav-link text-indigo-700">
-                    My Wishlist
-                </a>
-            </div>
-            <div class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
-                <a href="{% url 'main_feed' %}" class="nav-link">Main Feed</a>
-                {% if user.is_authenticated %}
-                    <a href="{% url 'wish_list' %}" class="nav-link">My Private List</a>
-                    <a href="{% url 'profile' %}" class="nav-link">My Profile</a>
-                    <span class="nav-link">Hello, <a href="{% url 'public_wish_list' user.username %}" class="font-bold text-indigo-700 hover:text-indigo-900">{{ user.username }}</a>!</span>
-                    <form action="{% url 'logout' %}" method="post" class="logout-form inline">
-                        {% csrf_token %}
-                        <button type="submit" class="button button-secondary">Logout</button>
-                    </form>
-                {% else %}
-                    <a href="{% url 'login' %}" class="button button-secondary">Login</a>
-                    <a href="{% url 'register' %}" class="button button-primary">Register</a>
-                {% endif %}
-            </div>
+<body class="{% block body_class %}bg-gray-100 text-gray-800{% endblock %}">
+  <header class="bg-white/80 backdrop-blur border-b border-gray-200">
+    <div class="{% block header_container_classes %}container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4{% endblock %}">
+      {% block header %}
+      <div class="flex items-center justify-between gap-4">
+        <a href="{% url 'main_feed' %}" class="text-lg font-bold text-gray-900">Wishes</a>
+        <nav class="flex items-center gap-4 text-sm">
+          <a href="{% url 'wish_list' %}" class="text-gray-700 hover:text-gray-900">My Wishes</a>
+          <a href="{% url 'add_wish' %}" class="text-gray-700 hover:text-gray-900">Add</a>
+          <a href="{% url 'profile' %}" class="text-gray-700 hover:text-gray-900">Profile</a>
         </nav>
-
-        <main class="mt-8">
-            {% if messages %}
-                <ul class="mb-4">
-                    {% for message in messages %}
-                        <li class="p-3 mb-2 rounded-lg text-white {% if message.tags %}bg-green-500{% else %}bg-red-500{% endif %}">
-                            {{ message }}
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-
-            {% block content %}{% endblock %}
-        </main>
+      </div>
+      {% endblock %}
     </div>
+  </header>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const body = document.body;
-            const breakpoint = 768; // Tailwind's 'md' breakpoint
+  <!-- Unified spacing to match /my-wishes/ -->
+  <main class="{% block main_container_classes %}container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-8 sm:pt-10 md:pt-12 pb-12{% endblock %}">
+    {% block messages %}
+      {% if messages %}
+        <div class="mb-6 space-y-2">
+          {% for message in messages %}
+            <div class="rounded-lg px-4 py-3 {% if message.tags %}alert-{{ message.tags }}{% else %}bg-indigo-50 text-indigo-900 border border-indigo-200{% endif %}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endblock %}
 
-            function setDeviceClass() {
-                if (window.innerWidth < breakpoint) {
-                    body.classList.add('is-mobile');
-                    body.classList.remove('is-desktop');
-                } else {
-                    body.classList.add('is-desktop');
-                    body.classList.remove('is-mobile');
-                }
-            }
+    {% block content %}{% endblock %}
+  </main>
 
-            setDeviceClass();
+  <footer class="mt-auto border-t border-gray-200">
+    <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 text-sm text-gray-500">
+      {% block footer %}&copy; {{ now|date:"Y" }}{% endblock %}
+    </div>
+  </footer>
 
-            window.addEventListener('resize', setDeviceClass);
-        });
-    </script>
+  {% block extra_scripts %}{% endblock %}
 </body>
 </html>

@@ -1,14 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wish Detail</title>
-</head>
-<body class="bg-gray-100 font-sans text-gray-800">
-    {% extends 'base.html' %}
+{% extends 'base.html' %}
 
-    {% block content %}
+{% block title %}Wish Detail{% endblock %}
+
+{% block content %}
     <div class="wish-card-detail">
         {% if is_owner %}
             <div class="flex justify-end mb-4 space-x-2">
@@ -24,40 +18,61 @@
         <div class="md:flex md:items-start md:space-x-8">
             <div class="w-full md:w-1/2">
                 {% if wish.image %}
-                    <img src="{{ wish.image.url }}" alt="{{ wish.title }}" class="w-full rounded-xl shadow-lg border border-gray-200">
+                    <img
+                            src="{{ wish.image.url }}"
+                            alt="{{ wish.title }}"
+                            class="w-full h-auto rounded-lg shadow-md object-cover"
+                    />
                 {% else %}
-                    <div class="w-full h-80 bg-gray-200 rounded-xl flex items-center justify-center text-gray-500 shadow-lg border border-gray-200">No Image</div>
-                {% endif %}
-            </div>
-
-            <div class="w-full md:w-1/2 mt-8 md:mt-0">
-                <h1 class="text-3xl font-extrabold text-gray-900 leading-tight mb-2">{{ wish.title }}</h1>
-                <p class="text-gray-500 mb-4">Wished by <a href="{% url 'public_wish_list' owner.username %}" class="font-semibold text-indigo-700 hover:underline">{{ owner.username }}</a></p>
-
-                <div class="mb-6">
-                    <span class="text-3xl font-extrabold text-purple-700">{{ wish.price }}</span>
-                </div>
-
-                <p class="text-sm text-gray-700 mb-4">{{ wish.description }}</p>
-
-                <div class="space-y-2 text-sm text-gray-600">
-                    <p><strong>Added on:</strong> {{ wish.created_at|date:"F d, Y P" }}</p>
-                    <p><strong>Shop link:</strong> {% if wish.shop_link %}<a href="{{ wish.shop_link }}" target="_blank" class="text-blue-600 hover:underline">{{ wish.shop_link }}</a>{% else %}N/A{% endif %}</p>
-                </div>
-
-                {% if wish.tags.all %}
-                    <div class="mt-6">
-                        <h3 class="text-lg font-semibold text-gray-700 mb-2">Tags:</h3>
-                        <div class="flex flex-wrap gap-2">
-                            {% for tag in wish.tags.all %}
-                                <a href="{% url 'public_wish_list' owner.username %}?tag={{ tag.name }}" class="tag-link hover:bg-purple-400">{{ tag.name }}</a>
-                            {% endfor %}
-                        </div>
+                    <div class="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">
+                        No image
                     </div>
                 {% endif %}
             </div>
+
+            <div class="w-full md:w-1/2 mt-6 md:mt-0 space-y-4">
+                <h1 class="text-3xl font-bold text-gray-900">{{ wish.title }}</h1>
+
+                {% if wish.price %}
+                    <p class="text-xl font-semibold text-green-600">{{ wish.price }}</p>
+                {% endif %}
+
+                {% if wish.shop_link %}
+                    <p>
+                        <a
+                                href="{{ wish.shop_link }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="text-blue-600 hover:text-blue-800 underline"
+                        >
+                            Buy / View in shop
+                        </a>
+                    </p>
+                {% endif %}
+
+                {% if wish.description %}
+                    <div class="prose max-w-none">
+                        {{ wish.description|linebreaksbr }}
+                    </div>
+                {% endif %}
+
+                {% if wish.tags.exists %}
+                    <div class="flex flex-wrap gap-2 pt-2">
+                        {% for tag in wish.tags.all %}
+                            <span class="px-3 py-1 rounded-full bg-gray-100 text-gray-700 border">{{ tag.name }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="pt-4 text-sm text-gray-500">
+                    {% if wish.completed %}
+                        <span class="inline-flex items-center px-2 py-1 bg-green-100 text-green-700 rounded">Completed</span>
+                    {% endif %}
+                    {% if wish.private %}
+                        <span class="inline-flex items-center px-2 py-1 bg-yellow-100 text-yellow-700 rounded">Private</span>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
-    {% endblock %}
-</body>
-</html>
+{% endblock %}
