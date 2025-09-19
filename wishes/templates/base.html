@@ -1,13 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>{% block title %}Wishes{% endblock %}</title>
+
+  {% block head_meta %}{% endblock %}
   <script src="https://cdn.tailwindcss.com"></script>
+  {% block head_css %}{% endblock %}
   {% block extra_head %}{% endblock %}
 </head>
 <body class="{% block body_class %}bg-gray-100 text-gray-800{% endblock %}">
+  <a href="#main-content"
+     class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 bg-white text-blue-700 border border-blue-200 rounded px-3 py-2 shadow">
+    Skip to content
+  </a>
+
   <header class="bg-white/80 backdrop-blur border-b border-gray-200">
     <div class="{% block header_container_classes %}container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4{% endblock %}">
       {% block header %}
@@ -23,15 +31,22 @@
     </div>
   </header>
 
-  <!-- Unified spacing to match /my-wishes/ -->
-  <main class="{% block main_container_classes %}container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-8 sm:pt-10 md:pt-12 pb-12{% endblock %}">
+  <main id="main-content" class="{% block main_container_classes %}container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-8 sm:pt-10 md:pt-12 pb-12{% endblock %}">
     {% block messages %}
       {% if messages %}
         <div class="mb-6 space-y-2">
           {% for message in messages %}
-            <div class="rounded-lg px-4 py-3 {% if message.tags %}alert-{{ message.tags }}{% else %}bg-indigo-50 text-indigo-900 border border-indigo-200{% endif %}">
-              {{ message }}
-            </div>
+            {% with mt=message.tags %}
+              <div role="alert"
+                   class="rounded-md px-4 py-3 border
+                     {% if 'error' in mt %}bg-red-50 border-red-200 text-red-800
+                     {% elif 'warning' in mt or 'warn' in mt %}bg-amber-50 border-amber-200 text-amber-900
+                     {% elif 'success' in mt %}bg-emerald-50 border-emerald-200 text-emerald-900
+                     {% elif 'info' in mt %}bg-blue-50 border-blue-200 text-blue-900
+                     {% else %}bg-gray-50 border-gray-200 text-gray-800{% endif %}">
+                {{ message }}
+              </div>
+            {% endwith %}
           {% endfor %}
         </div>
       {% endif %}
@@ -40,9 +55,11 @@
     {% block content %}{% endblock %}
   </main>
 
-  <footer class="mt-auto border-t border-gray-200">
+  <footer class="bg-white border-t border-gray-200">
     <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 text-sm text-gray-500">
-      {% block footer %}&copy; {{ now|date:"Y" }}{% endblock %}
+      {% block footer %}
+      <p>&copy; {% now "Y" %} Wishes</p>
+      {% endblock %}
     </div>
   </footer>
 

@@ -4,12 +4,14 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
 from django.contrib import messages
 from django import forms as forms
 from django.contrib.auth import get_user_model
 from .models import Wish, Tag, User
 from .forms import WishForm, ProfileForm
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.contrib.auth.models import User
 
 # Initialize logger for the wishes app
 logger = logging.getLogger('wishes')
@@ -188,60 +190,50 @@ def profile(request):
 
 
 def public_wish_list(request, username):
-    """
-    Renders a public wishlist page for a specific user.
-    """
-    logger.info(f"Accessing public wishlist for user: {username}.")
-    owner = get_object_or_404(User, username=username)
-    selected_tag = request.GET.get('tag')
+    # Case-insensitive match for usernames so /wisher/John/ and /wisher/john/ both work
+    owner = get_object_or_404(User, username__iexact=username)
 
-    all_wishes_query = Wish.objects.filter(
-        user=owner, private=False, completed=False
-    ).exclude(
-        Q(image__isnull=True) | Q(image='')
+    # Only fetch wishes for the owner from the URL param
+    qs = (
+        Wish.objects
+        .filter(user=owner)
+        .prefetch_related("tags")
+        .order_by("-id")
     )
 
-    tags = Tag.objects.filter(
-        wish__in=all_wishes_query
-    ).distinct()
-
+    # Optional filters from query string (safe defaults)
+    selected_tag = request.GET.get("tag") or ""
     if selected_tag:
-        all_wishes_query = all_wishes_query.filter(tags__name=selected_tag)
-        logger.debug(f"Public wishlist filtered by tag: '{selected_tag}'.")
+        qs = qs.filter(tags__name__iexact=selected_tag)
 
-    context = {
-        'wishes': all_wishes_query,
-        'owner': owner,
-        'is_owner': request.user == owner,
-        'tags': tags,
-        'selected_tag': selected_tag,
-    }
-    logger.info(f"Found {all_wishes_query.count()} public wishes for user {username}.")
-    return render(request, 'wishes/public_wish_list.html', context)
+    q = request.GET.get("q") or ""
+    if q:
+        qs = qs.filter(Q(title__icontains=q) | Q(description__icontains=q))
 
+    # In case of tag joins
+    qs = qs.distinct()
+
+    # Paginate
+    paginator = Paginator(qs, 12)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    return render(
+        request,
+        "wishes/public_wish_list.html",
+        {
+            "owner": owner,
+            "page_obj": page_obj,
+            "selected_tag": selected_tag,
+            "q": q,
+        },
+    )
 
 def public_wish_detail(request, username, pk):
-    """
-    Renders the detail page for a single public wish.
-    """
-    logger.debug(f"Accessing public wish detail for user '{username}', wish ID: {pk}.")
-    owner = get_object_or_404(User, username=username)
-
-    try:
-        # Check if the logged-in user is the owner, or if the wish is public
-        if request.user.is_authenticated and request.user == owner:
-            wish = get_object_or_404(Wish, pk=pk, user=owner)
-        else:
-            wish = get_object_or_404(Wish, pk=pk, user=owner, private=False, completed=False)
-
-        logger.info(f"Wish detail for '{wish.title}' accessed.")
-    except Exception as e:
-        logger.error(f"Failed to retrieve public wish detail for ID {pk}: {e}")
-        return redirect('main_feed')
-
-    context = {
-        'wish': wish,
-        'owner': owner,
-        'is_owner': request.user == owner,
-    }
-    return render(request, 'wishes/public_wish_detail.html', context)
+    owner = get_object_or_404(User, username__iexact=username)
+    wish = get_object_or_404(
+        Wish.objects.select_related("user").prefetch_related("tags"),
+        pk=pk,
+        user=owner,
+    )
+    return render(request, "wishes/public_wish_detail.html", {"wish": wish, "owner": owner})
