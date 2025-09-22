@@ -1,105 +1,109 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Wishlist</title>
-</head>
-<body class="bg-gray-100 font-sans text-gray-800">
-    {% extends 'base.html' %}
+{% extends 'base.html' %}
+{% block title %}My Wishes{% endblock %}
+{% block content %}
 
-    {% block content %}
-    <div class="flex items-center justify-between mb-8 flex-wrap gap-4">
-        <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 leading-tight">My Private Wishlist</h1>
-        <a href="{% url 'add_wish' %}" class="button button-primary whitespace-nowrap">
-            <span class="inline-block align-middle">
-                Add New Wish
-            </span>
-        </a>
-    </div>
+<!-- Active (Uncompleted) Wishes -->
+<section aria-labelledby="active-wishes">
+    <h3 id="active-wishes" class="text-2xl font-bold text-gray-800 mb-4 border-b-2 border-gray-300 pb-2">Active
+        Wishes</h3>
 
-    {# Filter section #}
-    <div class="mb-8">
-        <h3 class="text-lg font-semibold text-gray-700 mb-2 border-b-2 border-gray-300 pb-2">Filter by Tag:</h3>
-        <div class="flex flex-wrap gap-2">
-            <a href="{% url 'wish_list' %}" class="tag-link {% if not selected_tag %}bg-indigo-600 text-white{% endif %}">All</a>
-            {% for tag in tags %}
-                <a href="{% url 'wish_list' %}?tag={{ tag.name }}" class="tag-link {% if selected_tag == tag.name %}bg-indigo-600 text-white{% endif %}">{{ tag.name }}</a>
-            {% endfor %}
-        </div>
-    </div>
-
-    {# Not Completed (Active) Wishes section #}
-    <h3 class="text-2xl font-bold text-gray-800 mb-4 border-b-2 border-gray-300 pb-2">Active Wishes</h3>
     {% if active_wishes %}
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {% for wish in active_wishes %}
-                <div class="wish-card">
-                    <a href="{% url 'public_wish_detail' user.username wish.pk %}" class="block overflow-hidden">
-                        {% if wish.image %}
-                            <img src="{{ wish.image.url }}" alt="{{ wish.title }}" class="w-full h-48 sm:h-56 object-cover rounded-t-xl transition-transform duration-300 hover:scale-105">
-                        {% else %}
-                            <div class="w-full h-48 sm:h-56 bg-gray-200 rounded-t-xl flex items-center justify-center text-gray-500">No Image</div>
-                        {% endif %}
-                    </a>
-                    <div class="p-4 flex-grow flex flex-col justify-between">
-                        <div>
-                            <h3 class="text-xl font-bold text-gray-900 mb-2">
-                                <a href="{% url 'public_wish_detail' user.username wish.pk %}" class="hover:text-indigo-700">{{ wish.title }}</a>
-                            </h3>
-                            {% if wish.price %}
-                                <p class="text-gray-700 font-medium mb-2">{{ wish.price }} {{ wish.price_currency }}</p>
-                            {% endif %}
-                            {% if wish.description %}
-                                <p class="text-gray-600 text-sm line-clamp-3">{{ wish.description }}</p>
-                            {% endif %}
-                        </div>
-                        <div class="mt-4 flex flex-wrap gap-2">
-                            {% for tag in wish.tags.all %}
-                                <span class="tag">{{ tag.name }}</span>
-                            {% endfor %}
-                        </div>
-                    </div>
+    {% with is_completed=False grid_extra='' %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 {{ grid_extra }}">
+        {% for wish in active_wishes %}
+        {% url 'public_wish_detail' user.username wish.pk as wish_url %}
+        {% with card_extra=is_completed|yesno:'ring-1 ring-green-200,' img_modifiers=is_completed|yesno:'grayscale,transition-transform duration-300 hover:scale-105' %}
+        <div class="wish-card {{ card_extra }}">
+            <a href="{{ wish_url }}" class="block overflow-hidden">
+                {% if wish.image %}
+                <img src="{{ wish.image.url }}" alt="{{ wish.title|default:'Wish image' }}"
+                     class="w-full h-48 sm:h-56 object-cover rounded-t-xl {{ img_modifiers }}">
+                {% else %}
+                <div class="w-full h-48 sm:h-56 bg-gray-200 rounded-t-xl flex items-center justify-center text-gray-500">
+                    No Image
                 </div>
-            {% endfor %}
+                {% endif %}
+            </a>
+            <div class="p-4 flex-grow flex flex-col justify-between">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">
+                        <a href="{{ wish_url }}" class="hover:text-indigo-700">{{ wish.title }}</a>
+                    </h3>
+                    {% if wish.price %}
+                    <p class="text-gray-700 font-medium mb-2">{{ wish.price }} {{ wish.price_currency }}</p>
+                    {% endif %}
+                    {% if wish.description %}
+                    <p class="text-gray-600 text-sm line-clamp-3">{{ wish.description }}</p>
+                    {% endif %}
+                </div>
+                <div class="mt-4 flex flex-wrap gap-2">
+                    {% for tag in wish.tags.all %}
+                    <span class="tag">{{ tag.name }}</span>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
+        {% endwith %}
+        {% endfor %}
+    </div>
+    {% endwith %}
     {% else %}
-        <p class="text-gray-600 mb-8">No active wishes found.</p>
+    <p class="text-gray-600 mb-8">No active wishes found.</p>
     {% endif %}
+</section>
 
-    {# Completed Wishes section #}
-    <h3 class="text-2xl font-bold text-gray-800 mt-10 mb-4 border-b-2 border-gray-300 pb-2">Completed Wishes</h3>
+{% if active_wishes and completed_wishes %}
+<hr class="my-10 border-t border-gray-300">
+{% endif %}
+
+<!-- Completed Wishes -->
+<section aria-labelledby="completed-wishes">
+    <h3 id="completed-wishes" class="text-2xl font-bold text-gray-800 mb-4 border-b-2 border-gray-300 pb-2">Completed
+        Wishes</h3>
+
     {% if completed_wishes %}
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 opacity-90">
-            {% for wish in completed_wishes %}
-                <div class="wish-card ring-1 ring-green-200">
-                    <a href="{% url 'public_wish_detail' user.username wish.pk %}" class="block overflow-hidden">
-                        {% if wish.image %}
-                            <img src="{{ wish.image.url }}" alt="{{ wish.title }}" class="w-full h-48 sm:h-56 object-cover grayscale rounded-t-xl">
-                        {% else %}
-                            <div class="w-full h-48 sm:h-56 bg-gray-200 rounded-t-xl flex items-center justify-center text-gray-500">No Image</div>
-                        {% endif %}
-                    </a>
-                    <div class="p-4">
-                        <h3 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                            <span class="inline-block w-2.5 h-2.5 bg-green-500 rounded-full"></span>
-                            {{ wish.title }}
-                        </h3>
-                        {% if wish.description %}
-                            <p class="text-gray-600 text-sm mt-2 line-clamp-3">{{ wish.description }}</p>
-                        {% endif %}
-                        <div class="mt-3 flex flex-wrap gap-2">
-                            {% for tag in wish.tags.all %}
-                                <span class="tag">{{ tag.name }}</span>
-                            {% endfor %}
-                        </div>
-                    </div>
+    {% with is_completed=True grid_extra='opacity-90' %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 {{ grid_extra }}">
+        {% for wish in completed_wishes %}
+        {% url 'public_wish_detail' user.username wish.pk as wish_url %}
+        {% with card_extra=is_completed|yesno:'ring-1 ring-green-200,' img_modifiers=is_completed|yesno:'grayscale,transition-transform duration-300 hover:scale-105' %}
+        <div class="wish-card {{ card_extra }}">
+            <a href="{{ wish_url }}" class="block overflow-hidden">
+                {% if wish.image %}
+                <img src="{{ wish.image.url }}" alt="{{ wish.title|default:'Wish image' }}"
+                     class="w-full h-48 sm:h-56 object-cover rounded-t-xl {{ img_modifiers }}">
+                {% else %}
+                <div class="w-full h-48 sm:h-56 bg-gray-200 rounded-t-xl flex items-center justify-center text-gray-500">
+                    No Image
                 </div>
-            {% endfor %}
+                {% endif %}
+            </a>
+            <div class="p-4 flex-grow flex flex-col justify-between">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">
+                        <a href="{{ wish_url }}" class="hover:text-indigo-700">{{ wish.title }}</a>
+                    </h3>
+                    {% if wish.price %}
+                    <p class="text-gray-700 font-medium mb-2">{{ wish.price }} {{ wish.price_currency }}</p>
+                    {% endif %}
+                    {% if wish.description %}
+                    <p class="text-gray-600 text-sm line-clamp-3">{{ wish.description }}</p>
+                    {% endif %}
+                </div>
+                <div class="mt-4 flex flex-wrap gap-2">
+                    {% for tag in wish.tags.all %}
+                    <span class="tag">{{ tag.name }}</span>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
+        {% endwith %}
+        {% endfor %}
+    </div>
+    {% endwith %}
     {% else %}
-        <p class="text-gray-600">No completed wishes yet.</p>
+    <p class="text-gray-600">No completed wishes yet.</p>
     {% endif %}
-    {% endblock %}
-</body>
-</html>
+</section>
+
+        {% endblock %}

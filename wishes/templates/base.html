@@ -28,6 +28,7 @@
              {% if current == 'wish_list' %}aria-current="page"{% endif %}>
             My Wishes
           </a>
+
           <a href="{% url 'add_wish' %}"
              class="text-gray-700 hover:text-gray-900 {% if current == 'add_wish' %}font-semibold text-gray-900 underline underline-offset-4{% endif %}"
              {% if current == 'add_wish' %}aria-current="page"{% endif %}>
