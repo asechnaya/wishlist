@@ -24,9 +24,9 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
 
     # Public wishlist for a specific user
-    path('wisher/<str:username>/', views.public_wish_list, name='public_wish_list'),
+    path("wisher/<str:username>/", views.public_wish_list, name="public_wish_list"),
 
     # Public wish detail page for a specific user's wish
     # This URL now correctly includes both the username and the wish's primary key
-    path('wisher/<str:username>/<int:pk>/', views.public_wish_detail, name='public_wish_detail'),
+    path("wisher/<str:username>/<int:pk>/", views.public_wish_detail, name="public_wish_detail"),
 ]

@@ -52,7 +52,38 @@
       {% endif %}
     {% endblock %}
 
-    {% block content %}{% endblock %}
+    {% block content %}
+  <div class="flex items-center justify-between mb-8 flex-wrap gap-4">
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 leading-tight">
+      {{ owner.username }}’s Public Wishlist
+    </h1>
+  </div>
+
+  {% if wishes %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for wish in wishes %}
+        <a href="{% url 'public_wish_detail' owner.username wish.pk %}" class="block bg-white rounded-xl shadow border border-gray-200 overflow-hidden hover:shadow-md transition">
+          {% if wish.image %}
+            <img src="{{ wish.image.url }}" alt="{{ wish.title }}" class="w-full h-48 object-cover">
+          {% endif %}
+          <div class="p-4">
+            <h2 class="text-lg font-semibold text-gray-900">{{ wish.title }}</h2>
+            {% if wish.price %}<p class="text-gray-600 mt-1">{{ wish.price }}</p>{% endif %}
+            {% if wish.tags.all %}
+              <div class="mt-3 flex flex-wrap gap-2">
+                {% for tag in wish.tags.all %}
+                  <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">{{ tag.name }}</span>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-gray-600">No public wishes yet.</p>
+  {% endif %}
+{% endblock %}
   </main>
 
   <footer class="bg-white border-t border-gray-200">
