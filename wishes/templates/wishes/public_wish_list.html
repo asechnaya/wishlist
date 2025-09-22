@@ -1,5 +1,4 @@
-
-    {% extends 'base.html' %}
+{% extends 'base.html' %}
 
     {% block content %}
     <div class="flex items-center justify-between mb-8 flex-wrap gap-4">
@@ -24,39 +23,87 @@
         </div>
     </div>
 
-    {% if wishes %}
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {% for wish in wishes %}
-        <div class="wish-card {% if wish.completed %}opacity-60{% endif %}">
-            <a href="{% url 'public_wish_detail' owner.username wish.pk %}" class="block overflow-hidden">
-                {% if wish.image %}
-                    <img src="{{ wish.image.url }}" alt="{{ wish.title|default:'Wish image' }}" class="w-full h-48 sm:h-56 object-cover rounded-t-xl {% if wish.completed %}grayscale{% endif %} transition-transform duration-300 hover:scale-105">
-                {% else %}
-                    <div class="w-full h-48 sm:h-56 bg-gray-200 rounded-t-xl flex items-center justify-center text-gray-500">No Image</div>
-                {% endif %}
-            </a>
-            <div class="p-4 flex-grow flex flex-col justify-between">
-                <div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">
-                        <a href="{% url 'public_wish_detail' owner.username wish.pk %}" class="hover:text-indigo-700 {% if wish.completed %}line-through{% endif %}">{{ wish.title }}</a>
-                    </h3>
-                    {% if wish.price %}
-                        <p class="text-gray-700 font-medium mb-2 {% if wish.completed %}line-through{% endif %}">{{ wish.price }}</p>
-                    {% endif %}
-                    {% if wish.description %}
-                        <p class="text-gray-600 text-sm line-clamp-3">{{ wish.description }}</p>
-                    {% endif %}
-                </div>
-                <div class="mt-4 flex flex-wrap gap-2">
-                    {% for tag in wish.tags.all %}
-                        <a href="{% url 'public_wish_list' owner.username %}?tag={{ tag.name }}" class="tag-link hover:bg-purple-400">{{ tag.name }}</a>
-                    {% endfor %}
-                </div>
+    {# Active Wishes section #}
+    <section aria-labelledby="active-wishes" class="mb-10">
+        <h3 id="active-wishes" class="text-2xl font-bold text-gray-800 mb-4 border-b-2 border-gray-300 pb-2">Active Wishes</h3>
+        {% if active_wishes %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {% for wish in active_wishes %}
+                    {% with is_completed=False %}
+                    <div class="wish-card {% if is_completed %}{% endif %}">
+                        <a href="{% url 'public_wish_detail' owner.username wish.pk %}" class="block overflow-hidden">
+                            {% if wish.image %}
+                                <img src="{{ wish.image.url }}" alt="{{ wish.title|default:'Wish image' }}" class="w-full h-48 sm:h-56 object-cover rounded-t-xl transition-transform duration-300 hover:scale-105">
+                            {% else %}
+                                <div class="w-full h-48 sm:h-56 bg-gray-200 rounded-t-xl flex items-center justify-center text-gray-500">No Image</div>
+                            {% endif %}
+                        </a>
+                        <div class="p-4 flex-grow flex flex-col justify-between">
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900 mb-2">
+                                    <a href="{% url 'public_wish_detail' owner.username wish.pk %}" class="hover:text-indigo-700">{{ wish.title }}</a>
+                                </h3>
+                                {% if wish.price %}
+                                    <p class="text-gray-700 font-medium mb-2">{{ wish.price }}</p>
+                                {% endif %}
+                                {% if wish.description %}
+                                    <p class="text-gray-600 text-sm line-clamp-3">{{ wish.description }}</p>
+                                {% endif %}
+                            </div>
+                            <div class="mt-4 flex flex-wrap gap-2">
+                                {% for tag in wish.tags.all %}
+                                    <a href="{% url 'public_wish_list' owner.username %}?tag={{ tag.name }}" class="tag-link hover:bg-purple-400">{{ tag.name }}</a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endwith %}
+                {% endfor %}
             </div>
-        </div>
-        {% endfor %}
-    </div>
-    {% else %}
-        <p class="text-gray-600">No public wishes found for this user.</p>
-    {% endif %}
+        {% else %}
+            <p class="text-gray-600">No active wishes found.</p>
+        {% endif %}
+    </section>
+
+    {# Completed Wishes section #}
+    <section aria-labelledby="completed-wishes">
+        <h3 id="completed-wishes" class="text-2xl font-bold text-gray-800 mb-4 border-b-2 border-gray-300 pb-2">Completed Wishes</h3>
+        {% if completed_wishes %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {% for wish in completed_wishes %}
+                    {% with is_completed=True %}
+                    <div class="wish-card opacity-60">
+                        <a href="{% url 'public_wish_detail' owner.username wish.pk %}" class="block overflow-hidden">
+                            {% if wish.image %}
+                                <img src="{{ wish.image.url }}" alt="{{ wish.title|default:'Wish image' }}" class="w-full h-48 sm:h-56 object-cover rounded-t-xl grayscale transition-transform duration-300 hover:scale-105">
+                            {% else %}
+                                <div class="w-full h-48 sm:h-56 bg-gray-200 rounded-t-xl flex items-center justify-center text-gray-500">No Image</div>
+                            {% endif %}
+                        </a>
+                        <div class="p-4 flex-grow flex flex-col justify-between">
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900 mb-2">
+                                    <a href="{% url 'public_wish_detail' owner.username wish.pk %}" class="hover:text-indigo-700 line-through">{{ wish.title }}</a>
+                                </h3>
+                                {% if wish.price %}
+                                    <p class="text-gray-700 font-medium mb-2 line-through">{{ wish.price }}</p>
+                                {% endif %}
+                                {% if wish.description %}
+                                    <p class="text-gray-600 text-sm line-clamp-3">{{ wish.description }}</p>
+                                {% endif %}
+                            </div>
+                            <div class="mt-4 flex flex-wrap gap-2">
+                                {% for tag in wish.tags.all %}
+                                    <a href="{% url 'public_wish_list' owner.username %}?tag={{ tag.name }}" class="tag-link hover:bg-purple-400">{{ tag.name }}</a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endwith %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-gray-600">No completed wishes yet.</p>
+        {% endif %}
+    </section>
     {% endblock %}
