@@ -187,53 +187,50 @@ def profile(request):
 
 
 def public_wish_list(request, username):
-    owner = get_object_or_404(User, username__iexact=username)
-    is_owner = request.user.is_authenticated and request.user == owner
+    """
+    Renders a public wishlist page for a specific user.
+    """
+    logger.info(f"Accessing public wishlist for user: {username}.")
+    owner = get_object_or_404(User, username=username)
+    selected_tag = request.GET.get('tag')
 
-    wishes = (
-        Wish.objects.select_related("user")
-        .prefetch_related("tags")
-        .filter(user=owner)
+    all_wishes_query = Wish.objects.filter(
+        user=owner, private=False, completed=False
+    ).exclude(
+        Q(image__isnull=True) | Q(image='')
+    )
+    active_wishes_query = Wish.objects.filter(
+        user=owner, private=False, completed=False
+    ).exclude(
+        Q(image__isnull=True) | Q(image='')
+    )
+    completed_wishes_query = Wish.objects.filter(
+        user=owner, private=False, completed=True
+    ).exclude(
+        Q(image__isnull=True) | Q(image='')
     )
 
-    # Only the owner sees everything; others see only public items
-    if not is_owner:
-        field_names = {f.name for f in Wish._meta.get_fields()}
-        if "is_public" in field_names:
-            wishes = wishes.filter(is_public=True)
-        elif "private" in field_names:
-            wishes = wishes.filter(private=False)
-        else:
-            # If neither field exists, assume everything is public
-            # (or choose .none() if you prefer to hide by default)
-            pass
+    tags = Tag.objects.filter(
+        wish__in=all_wishes_query
+    ).distinct()
 
-    # Optional tag filter: /wisher/<username>/?tag=<TagName>
-    active_tag = request.GET.get("tag")
-    if active_tag:
-        wishes = wishes.filter(tags__name__iexact=active_tag)
+    if selected_tag:
+        all_wishes_query = all_wishes_query.filter(tags__name=selected_tag)
+        active_wishes_query = active_wishes_query.filter(tags__name=selected_tag)
+        completed_wishes_query = completed_wishes_query.filter(tags__name=selected_tag)
+        logger.debug(f"Public wishlist filtered by tag: '{selected_tag}'.")
 
-    # Optional text search: /wisher/<username>/?q=<text>
-    query = request.GET.get("q")
-    if query:
-        wishes = wishes.filter(
-            Q(title__icontains=query) |
-            Q(description__icontains=query)
-        )
-
-    wishes = wishes.order_by("-id").distinct()
-
-    return render(
-        request,
-        "wishes/public_wish_list.html",
-        {
-            "owner": owner,
-            "is_owner": is_owner,
-            "wishes": wishes,
-            "active_tag": active_tag,
-            "query": query or "",
-        },
-    )
+    context = {
+        'wishes': all_wishes_query,
+        'active_wishes': active_wishes_query,
+        'completed_wishes': completed_wishes_query,
+        'owner': owner,
+        'is_owner': request.user == owner,
+        'tags': tags,
+        'selected_tag': selected_tag,
+    }
+    logger.info(f"Found {all_wishes_query.count()} public wishes for user {username}.")
+    return render(request, 'wishes/public_wish_list.html', context)
 
 
 
