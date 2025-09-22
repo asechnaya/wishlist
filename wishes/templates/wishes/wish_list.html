@@ -29,7 +29,7 @@
         </div>
     </div>
 
-    {# Active Wishes section #}
+    {# Not Completed (Active) Wishes section #}
     <h3 class="text-2xl font-bold text-gray-800 mb-4 border-b-2 border-gray-300 pb-2">Active Wishes</h3>
     {% if active_wishes %}
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -44,12 +44,19 @@
                     </a>
                     <div class="p-4 flex-grow flex flex-col justify-between">
                         <div>
-                            <h3 class="text-xl font-bold text-gray-900 mb-2"><a href="{% url 'public_wish_detail' user.username wish.pk %}" class="hover:text-indigo-700">{{ wish.title }}</a></h3>
-                            <p class="text-sm text-gray-600 mb-2">Price: {% if wish.price %}{{ wish.price }}{% else %}N/A{% endif %}</p>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">
+                                <a href="{% url 'public_wish_detail' user.username wish.pk %}" class="hover:text-indigo-700">{{ wish.title }}</a>
+                            </h3>
+                            {% if wish.price %}
+                                <p class="text-gray-700 font-medium mb-2">{{ wish.price }} {{ wish.price_currency }}</p>
+                            {% endif %}
+                            {% if wish.description %}
+                                <p class="text-gray-600 text-sm line-clamp-3">{{ wish.description }}</p>
+                            {% endif %}
                         </div>
-                        <div class="mt-4 flex flex-wrap gap-1">
+                        <div class="mt-4 flex flex-wrap gap-2">
                             {% for tag in wish.tags.all %}
-                                <a href="{% url 'wish_list' %}?tag={{ tag.name }}" class="tag-link hover:bg-purple-400">{{ tag.name }}</a>
+                                <span class="tag">{{ tag.name }}</span>
                             {% endfor %}
                         </div>
                     </div>
@@ -57,30 +64,33 @@
             {% endfor %}
         </div>
     {% else %}
-        <p class="text-gray-500 mb-8">You have no active wishes yet. <a href="{% url 'add_wish' %}" class="text-indigo-600 hover:underline">Add one!</a></p>
+        <p class="text-gray-600 mb-8">No active wishes found.</p>
     {% endif %}
 
     {# Completed Wishes section #}
-    <h3 class="text-2xl font-bold text-gray-800 mt-12 mb-4 border-b-2 border-gray-300 pb-2">Completed Wishes</h3>
+    <h3 class="text-2xl font-bold text-gray-800 mt-10 mb-4 border-b-2 border-gray-300 pb-2">Completed Wishes</h3>
     {% if completed_wishes %}
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 opacity-90">
             {% for wish in completed_wishes %}
-                <div class="wish-card opacity-60">
+                <div class="wish-card ring-1 ring-green-200">
                     <a href="{% url 'public_wish_detail' user.username wish.pk %}" class="block overflow-hidden">
                         {% if wish.image %}
-                            <img src="{{ wish.image.url }}" alt="{{ wish.title }}" class="w-full h-48 sm:h-56 object-cover rounded-t-xl transition-transform duration-300 hover:scale-105">
+                            <img src="{{ wish.image.url }}" alt="{{ wish.title }}" class="w-full h-48 sm:h-56 object-cover grayscale rounded-t-xl">
                         {% else %}
                             <div class="w-full h-48 sm:h-56 bg-gray-200 rounded-t-xl flex items-center justify-center text-gray-500">No Image</div>
                         {% endif %}
                     </a>
-                    <div class="p-4 flex-grow flex flex-col justify-between">
-                        <div>
-                            <h3 class="text-xl font-bold text-gray-900 mb-2"><a href="{% url 'public_wish_detail' user.username wish.pk %}" class="hover:text-indigo-700 line-through">{{ wish.title }}</a></h3>
-                            <p class="text-sm text-gray-600 mb-2 line-through">Price: {% if wish.price %}{{ wish.price }}{% else %}N/A{% endif %}</p>
-                        </div>
-                        <div class="mt-4 flex flex-wrap gap-1">
+                    <div class="p-4">
+                        <h3 class="text-xl font-semibold text-gray-900 flex items-center gap-2">
+                            <span class="inline-block w-2.5 h-2.5 bg-green-500 rounded-full"></span>
+                            {{ wish.title }}
+                        </h3>
+                        {% if wish.description %}
+                            <p class="text-gray-600 text-sm mt-2 line-clamp-3">{{ wish.description }}</p>
+                        {% endif %}
+                        <div class="mt-3 flex flex-wrap gap-2">
                             {% for tag in wish.tags.all %}
-                                <a href="{% url 'wish_list' %}?tag={{ tag.name }}" class="tag-link hover:bg-purple-400">{{ tag.name }}</a>
+                                <span class="tag">{{ tag.name }}</span>
                             {% endfor %}
                         </div>
                     </div>
@@ -88,7 +98,7 @@
             {% endfor %}
         </div>
     {% else %}
-        <p class="text-gray-500">You have no completed wishes yet.</p>
+        <p class="text-gray-600">No completed wishes yet.</p>
     {% endif %}
     {% endblock %}
 </body>

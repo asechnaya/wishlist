@@ -35,5 +35,10 @@ class Wish(models.Model):
     def __str__(self):
         return self.title
 
+    @property
+    def is_public(self) -> bool:
+        return not self.private
+
+
     class Meta:
         ordering = ['completed', '-created_at']

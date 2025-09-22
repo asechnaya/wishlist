@@ -1,92 +1,93 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}{{ owner.username }} — Public wishlist{% endblock %}
+{% block title %}{{ owner.username }}’s public wishlist{% endblock %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto">
-  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-    <h1 class="text-2xl font-bold">
+<div class="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex items-center justify-between gap-4 mb-6">
+    <h1 class="text-2xl sm:text-3xl font-bold">
       {{ owner.username }}’s public wishlist
     </h1>
 
-    <form method="get" class="flex items-center gap-2">
-      <input
-        type="text"
-        name="q"
-        value="{{ q }}"
-        placeholder="Search wishes..."
-        class="border rounded px-3 py-2 w-64"
-      />
-      {# Preserve tag when searching #}
-      {% if selected_tag %}
-        <input type="hidden" name="tag" value="{{ selected_tag }}">
-      {% endif %}
-      <button type="submit" class="button">Search</button>
-      {% if q or selected_tag %}
-        <a href="{% url 'public_wish_list' owner.username %}" class="text-sm text-gray-500 hover:underline">Reset</a>
-      {% endif %}
-    </form>
+    {% if is_owner %}
+      <a href="{% url 'add_wish' %}" class="button button-primary">Add</a>
+    {% endif %}
   </div>
 
-  {# Tag filters #}
-  {% if tag_facets %}
-    <div class="flex flex-wrap items-center gap-2 mb-6">
-      <a
-        href="{% url 'public_wish_list' owner.username %}{% if q %}?q={{ q|urlencode }}{% endif %}"
-        class="px-3 py-1 rounded border {% if not selected_tag %}bg-gray-900 text-white{% else %}bg-white{% endif %}"
-      >
-        All
-      </a>
-      {% for tag in tag_facets %}
-        <a
-          href="{% url 'public_wish_list' owner.username %}?tag={{ tag.name|urlencode }}{% if q %}&q={{ q|urlencode }}{% endif %}"
-          class="px-3 py-1 rounded border {% if selected_tag == tag.name %}bg-gray-900 text-white{% else %}bg-white{% endif %}"
-          title="{{ tag.name }}"
-        >
-          {{ tag.name }} <span class="text-gray-500">({{ tag.total }})</span>
-        </a>
-      {% endfor %}
+  <form method="get" class="mb-6">
+    <div class="flex gap-2">
+      <input
+        type="search"
+        name="q"
+        value="{{ query }}"
+        placeholder="Search wishes..."
+        class="flex-1 border rounded px-3 py-2"
+      />
+      {% if active_tag %}
+        <input type="hidden" name="tag" value="{{ active_tag }}">
+      {% endif %}
+      <button type="submit" class="button">Search</button>
+    </div>
+  </form>
+
+  {% if active_tag %}
+    <div class="mb-4 text-sm text-gray-600">
+      Filtering by tag: <strong>{{ active_tag }}</strong>
+      <a href="{% url 'public_wish_list' owner.username %}" class="ml-2 text-blue-600 underline">Clear</a>
     </div>
   {% endif %}
 
-  {# Grid of wishes #}
-  {% if page_obj.object_list %}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {% for wish in page_obj.object_list %}
-        {# render wish card #}
-      {% empty %}
-        <p>No wishes found.</p>
+  {% if wishes %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      {% for wish in wishes %}
+        <div class="border rounded-lg overflow-hidden bg-white shadow-sm">
+          <a href="{% url 'public_wish_detail' owner.username wish.pk %}" class="block">
+            {% if wish.image %}
+              <img src="{{ wish.image.url }}" alt="{{ wish.title }}" class="w-full h-48 object-cover">
+            {% endif %}
+            <div class="p-4">
+              <h3 class="font-semibold text-lg">{{ wish.title }}</h3>
+              {% if wish.description %}
+                <p class="text-sm text-gray-600 line-clamp-3">{{ wish.description }}</p>
+              {% endif %}
+              {% if wish.tags.all %}
+                <div class="mt-2 flex flex-wrap gap-2 text-xs">
+                  {% for tag in wish.tags.all %}
+                    <span class="px-2 py-1 rounded bg-gray-100 text-gray-700">#{{ tag.name }}</span>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </a>
+        </div>
       {% endfor %}
     </div>
   {% else %}
-    <div class="text-center text-gray-600 py-16">
-      No wishes found{% if selected_tag %} for tag “{{ selected_tag }}”{% endif %}{% if q %} matching “{{ q }}”{% endif %}.
-    </div>
-  {% endif %}
-
-  {# Pagination #}
-  {% if page_obj.paginator.num_pages > 1 %}
-    <nav class="flex items-center justify-center gap-2 mt-8" aria-label="Pagination">
-      {% if page_obj.has_previous %}
-        <a
-          class="px-3 py-1 border rounded"
-          href="?page={{ page_obj.previous_page_number }}{% if selected_tag %}&tag={{ selected_tag|urlencode }}{% endif %}{% if q %}&q={{ q|urlencode }}{% endif %}"
-        >Prev</a>
-      {% endif %}
-
-      {% for num in page_obj.paginator.page_range %}
-        {% if num == page_obj.number %}
-          <span class="px-3 py-1 border rounded bg-gray-900 text-white">{{ num }}</span>
-        {% elif num <= 2 or num > page_obj.paginator.num_pages|add:"-2" or num >= page_obj.number|add:"-1" and num <= page_obj.number|add:"1" %}
-          <a
-            class="px-3 py-1 border rounded"
-            href="?page={{ num }}{% if selected_tag %}&tag={{ selected_tag|urlencode }}{% endif %}{% if q %}&q={{ q|urlencode }}{% endif %}"
-          >{{ num }}</a>
-        {% elif forloop.first or forloop.last %}
-          <span class="px-3 py-1">…</span>
+    <div class="text-gray-600">
+      {% if is_owner %}
+        {% if query or active_tag %}
+          <p>No matching wishes. Try clearing filters.</p>
+          <p class="mt-2">
+            <a class="text-blue-600 underline" href="{% url 'public_wish_list' owner.username %}">Clear filters</a>
+          </p>
+        {% else %}
+          <p>You don’t have any wishes yet.</p>
+          <p class="mt-2">
+            <a class="button button-primary" href="{% url 'add_wish' %}">Add your first wish</a>
+          </p>
         {% endif %}
-      {% endfor %}
-    </nav>
+      {% else %}
+        {% if query or active_tag %}
+          <p>No matching public wishes. Try clearing filters.</p>
+          <p class="mt-2">
+            <a class="text-blue-600 underline" href="{% url 'public_wish_list' owner.username %}">Clear filters</a>
+          </p>
+        {% else %}
+          <p>No public wishes yet.</p>
+        {% endif %}
+      {% endif %}
+    </div>
   {% endif %}
 </div>
 {% endblock %}
