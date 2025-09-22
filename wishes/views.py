@@ -195,7 +195,7 @@ def public_wish_list(request, username):
     selected_tag = request.GET.get('tag')
 
     all_wishes_query = Wish.objects.filter(
-        user=owner, private=False, completed=False
+        user=owner, private=False
     ).exclude(
         Q(image__isnull=True) | Q(image='')
     )
@@ -229,9 +229,9 @@ def public_wish_list(request, username):
         'tags': tags,
         'selected_tag': selected_tag,
     }
-    logger.info(f"Found {all_wishes_query.count()} public wishes for user {username}.")
+    logger.info(
+        f"Found {active_wishes_query.count()} active and {completed_wishes_query.count()} completed wishes for user {username}.")
     return render(request, 'wishes/public_wish_list.html', context)
-
 
 
 def public_wish_detail(request, username, pk):
