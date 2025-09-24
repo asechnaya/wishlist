@@ -1,94 +1,257 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>{% block title %}Wishes{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="{% static 'images/bow-icon.svg' %}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Wishlist{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap');
 
-  {% block head_meta %}{% endblock %}
-  <script src="https://cdn.tailwindcss.com"></script>
-  {% block head_css %}{% endblock %}
-  {% block extra_head %}{% endblock %}
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to bottom right, #f8fafc, #eef2f6);
+            color: #1a202c;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        nav {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            background-color: white;
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border-radius: 1.5rem;
+            font-weight: 600;
+        }
+        @media (min-width: 640px) {
+            nav {
+                flex-direction: row;
+            }
+        }
+
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        @media (min-width: 640px) {
+            .nav-links {
+                flex-direction: row;
+                margin-top: 0;
+            }
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: #4a5568;
+            transition: color 0.2s;
+            text-decoration: none;
+        }
+        .nav-link:hover {
+            color: #2b6cb0;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #ffffff;
+            background-color: #4c51bf;
+            border: none;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            text-align: center;
+            text-decoration: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .button:hover {
+            background-color: #3b3f8e;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .button-primary {
+            background-color: #f472b6;
+            color: #ffffff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .button-primary:hover {
+            background-color: #ec4899;
+            box-shadow: 0 6px 10px -2px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .button-secondary {
+            background-color: #e2e8f0;
+            color: #4a5568;
+            box-shadow: none;
+        }
+
+        .button-secondary:hover {
+            background-color: #cbd5e0;
+        }
+
+        .button-danger {
+            background-color: #e53e3e;
+            color: white;
+            box-shadow: none;
+        }
+        .button-danger:hover {
+            background-color: #c53030;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.75rem;
+            transition: all 0.2s ease-in-out;
+            background-color: #f7fafc;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: #6366f1;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .tag-link {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background-color: #e9d5ff;
+            color: #6b46c1;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: 9999px;
+            transition: background-color 0.2s;
+            text-decoration: none;
+        }
+
+        .tag-link:hover {
+            background-color: #d6bcfa;
+        }
+
+        .username-link {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .username-link:hover {
+            color: #2b6cb0;
+        }
+
+        .wish-card {
+            background-color: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            transform: scale(1);
+        }
+
+        .wish-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
 </head>
-<body class="{% block body_class %}bg-gray-100 text-gray-800{% endblock %}">
-  <a href="#main-content"
-     class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 bg-white text-blue-700 border border-blue-200 rounded px-3 py-2 shadow">
-    Skip to content
-  </a>
-
-  <header class="bg-white/80 backdrop-blur border-b border-gray-200" role="banner">
-    <div class="{% block header_container_classes %}container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4{% endblock %}">
-      {% block header %}
-      {% with current=request.resolver_match.url_name %}
-      <div class="flex items-center justify-between gap-4">
-        <a href="{% url 'main_feed' %}" class="text-lg font-bold text-gray-900">Wishes</a>
-        <nav class="flex items-center gap-4 text-sm" role="navigation" aria-label="Primary">
-          <a href="{% url 'wish_list' %}"
-             class="text-gray-700 hover:text-gray-900 {% if current == 'wish_list' %}font-semibold text-gray-900 underline underline-offset-4{% endif %}"
-             {% if current == 'wish_list' %}aria-current="page"{% endif %}>
-            My Wishes
-          </a>
-
-          <a href="{% url 'add_wish' %}"
-             class="text-gray-700 hover:text-gray-900 {% if current == 'add_wish' %}font-semibold text-gray-900 underline underline-offset-4{% endif %}"
-             {% if current == 'add_wish' %}aria-current="page"{% endif %}>
-            Add
-          </a>
-          <a href="{% url 'profile' %}"
-             class="text-gray-700 hover:text-gray-900 {% if current == 'profile' %}font-semibold text-gray-900 underline underline-offset-4{% endif %}"
-             {% if current == 'profile' %}aria-current="page"{% endif %}>
-            Profile
-          </a>
-          {% block header_extra_nav %}{% endblock %}
+<body class="bg-gray-100 font-sans text-gray-800">
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <nav class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0 bg-white p-4 sm:p-6 rounded-3xl shadow-lg border-2 border-gray-100 mb-8">
+            <div class="text-3xl font-extrabold text-gray-900">
+                <a href="{% url 'main_feed' %}" class="nav-link text-indigo-700">
+                    My Wishlist
+                </a>
+            </div>
+            <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                <a href="{% url 'main_feed' %}" class="nav-link">Main Feed</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'wish_list' %}" class="nav-link">My Private List</a>
+                    <a href="{% url 'profile' %}" class="nav-link">My Profile</a>
+                    <span class="nav-link">Hello, <a href="{% url 'public_wish_list' user.username %}" class="font-bold text-indigo-700 hover:text-indigo-900">{{ user.username }}</a>!</span>
+                    <form action="{% url 'logout' %}" method="post" class="logout-form inline">
+                        {% csrf_token %}
+                        <button type="submit" class="button button-secondary">Logout</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="button button-secondary">Login</a>
+                    <a href="{% url 'register' %}" class="button button-primary">Register</a>
+                {% endif %}
+            </div>
         </nav>
-      </div>
-      {% endwith %}
-      {% endblock %}
+
+        <main class="mt-8">
+            {% if messages %}
+                <ul class="mb-6">
+                    {% for message in messages %}
+                        <li class="p-4 mb-2 rounded-xl text-white {% if message.tags %}bg-green-500{% else %}bg-red-500{% endif %}">
+                            {{ message }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </main>
     </div>
-  </header>
 
-  <main id="main-content"
-        class="{% block main_container_classes %}container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-8 sm:pt-10 md:pt-12 pb-12{% endblock %}"
-        role="main">
-    {% block messages %}
-      {% if messages %}
-        <div class="mb-6 space-y-2" role="region" aria-label="Notifications">
-          {% for message in messages %}
-            {% with mt=message.tags %}
-              <div role="alert"
-                   class="rounded-md px-4 py-3 border
-                     {% if 'error' in mt %}bg-red-50 border-red-200 text-red-800
-                     {% elif 'warning' in mt or 'warn' in mt %}bg-amber-50 border-amber-200 text-amber-900
-                     {% elif 'success' in mt %}bg-emerald-50 border-emerald-200 text-emerald-900
-                     {% elif 'info' in mt %}bg-blue-50 border-blue-200 text-blue-900
-                     {% else %}bg-gray-50 border-gray-200 text-gray-800{% endif %}">
-                {{ message }}
-              </div>
-            {% endwith %}
-          {% endfor %}
-        </div>
-      {% endif %}
-    {% endblock %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const body = document.body;
+            const breakpoint = 768; // Tailwind's 'md' breakpoint
 
-    {% block page_header %}
-      {% if block.super %}{{ block.super }}{% endif %}
-    {% endblock %}
+            function setDeviceClass() {
+                if (window.innerWidth < breakpoint) {
+                    body.classList.add('is-mobile');
+                    body.classList.remove('is-desktop');
+                } else {
+                    body.classList.add('is-desktop');
+                    body.classList.remove('is-mobile');
+                }
+            }
 
-    {% block breadcrumbs %}{% endblock %}
+            setDeviceClass();
 
-    {% block content %}{% endblock %}
-
-    {% block page_actions %}{% endblock %}
-  </main>
-
-  <footer class="border-t border-gray-200 bg-white/60 backdrop-blur" role="contentinfo">
-    <div class="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
-      {% block footer %}
-        <p class="text-sm text-gray-500">&copy; {{ now|date }} Wishes</p>
-      {% endblock %}
-    </div>
-  </footer>
-
-  {% block body_js %}{% endblock %}
+            window.addEventListener('resize', setDeviceClass);
+        });
+    </script>
 </body>
 </html>
