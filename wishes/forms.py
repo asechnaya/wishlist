@@ -28,7 +28,7 @@ class WishForm(forms.ModelForm):
 
     class Meta:
         model = Wish
-        fields = ['title', 'price', 'shop_link', 'description', 'private', 'completed']
+        fields = ['title', 'image', 'image_url', 'price', 'shop_link', 'description', 'tags', 'private', 'completed']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -43,15 +43,12 @@ class WishForm(forms.ModelForm):
         cleaned = super().clean()
         image_file = cleaned.get("image_file")
         image_url = cleaned.get("image_url")
-
         if image_file and image_url:
             raise forms.ValidationError("Choose only one option: either upload or URL.")
-
         if image_url:
             path = urlsplit(image_url).path.lower()
             if not any(path.endswith(ext) for ext in (".jpg", ".jpeg", ".png", ".gif", ".webp")):
-                self.add_error("image_url", "It seems this is not a direct link to the image.")
-
+                self.add_error("image_url", "It seems this is not a direct link to an image.")
         return cleaned
 
     def save(self, commit=True):

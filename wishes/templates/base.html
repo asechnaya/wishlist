@@ -201,21 +201,22 @@
                     My Wishlist
                 </a>
             </div>
-            <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
-                <a href="{% url 'main_feed' %}" class="nav-link">Main Feed</a>
-                {% if user.is_authenticated %}
-                    <a href="{% url 'wish_list' %}" class="nav-link">My Private List</a>
-                    <a href="{% url 'profile' %}" class="nav-link">My Profile</a>
-                    <span class="nav-link">Hello, <a href="{% url 'public_wish_list' user.username %}" class="font-bold text-indigo-700 hover:text-indigo-900">{{ user.username }}</a>!</span>
-                    <form action="{% url 'logout' %}" method="post" class="logout-form inline">
-                        {% csrf_token %}
-                        <button type="submit" class="button button-secondary">Logout</button>
-                    </form>
-                {% else %}
-                    <a href="{% url 'login' %}" class="button button-secondary">Login</a>
-                    <a href="{% url 'register' %}" class="button button-primary">Register</a>
-                {% endif %}
-            </div>
+        <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
+            <a href="{% url 'main_feed' %}" class="nav-link">Main Feed</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'add_wish' %}" class="nav-link">Add Wish</a>
+                <a href="{% url 'wish_list' %}" class="nav-link">My Private List</a>
+                <a href="{% url 'profile' %}" class="nav-link">My Profile</a>
+                <span class="nav-link">Hello, <a href="{% url 'public_wish_list' user.username %}" class="font-bold text-indigo-700 hover:text-indigo-900">{{ user.username }}</a>!</span>
+                <form action="{% url 'logout' %}" method="post" class="logout-form inline">
+                    {% csrf_token %}
+                    <button type="submit" class="button button-secondary">Logout</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}" class="button button-secondary">Login</a>
+                <a href="{% url 'register' %}" class="button button-primary">Register</a>
+            {% endif %}
+        </div>
         </nav>
 
         <main class="mt-8">
